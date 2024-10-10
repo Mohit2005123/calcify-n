@@ -8,7 +8,7 @@ const BinaryTree = () => {
   const [lines, setLines] = useState([]);
   const [draggingLine, setDraggingLine] = useState(null);
   const [draggingNode, setDraggingNode] = useState(null);
-  const [highlightedNode, setHighlightedNode] = useState(null);
+  const [highlightedNode, setHighlightedNode] = useState(null); 
   const svgRef = useRef(null);
   const getLeftChild = (node) => nodes.find(n => n.parent === node.id && n.isLeft);
   const getRightChild = (node) => nodes.find(n => n.parent === node.id && !n.isLeft);

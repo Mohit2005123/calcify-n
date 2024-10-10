@@ -8,6 +8,7 @@ const BinarySearchTree = () => {
   const [draggingNode, setDraggingNode] = useState(null);
   const [traversalOrder, setTraversalOrder] = useState([]);
   const [currentTraversalIndex, setCurrentTraversalIndex] = useState(null);
+  const [deleteValue, setDeleteValue] = useState('');
   const svgRef = useRef(null);
 
   // Helper functions
@@ -31,21 +32,52 @@ const BinarySearchTree = () => {
     return { length, angle };
   };
 
-  const findNodePosition = (value) => {
-    if (nodes.length === 0) {
-      return { x: 400, y: 50, parent: null };
-    }
+//   const findNodePosition = (value) => {
+//     if (nodes.length === 0) {
+//       return { x: 400, y: 50, parent: null };
+//     }
 
+//     let current = nodes.find(n => n.parent === null); // root
+//     let x = 400;
+//     let y = 50;
+//     let parent = null;
+//     let horizontalSpacing = 150;
+
+//     while (current) {
+//       parent = current;
+//       y += 100;
+      
+//       if (value < parseInt(current.value)) {
+//         x -= horizontalSpacing;
+//         current = nodes.find(n => n.parent === current.id && n.isLeft);
+//       } else {
+//         x += horizontalSpacing;
+//         current = nodes.find(n => n.parent === current.id && !n.isLeft);
+//       }
+      
+//       horizontalSpacing = Math.max(50, horizontalSpacing * 0.8);
+//     }
+
+//     return { x, y, parent: parent.id, isLeft: value < parseInt(parent.value) };
+//   };
+const findNodePosition = (value) => {
+    if (nodes.length === 0 && svgRef.current) {
+      // Get the width of the SVG container dynamically
+      const svgWidth = svgRef.current.clientWidth;
+      // Center the root node horizontally
+      return { x: svgWidth / 2, y: 50, parent: null };
+    }
+  
     let current = nodes.find(n => n.parent === null); // root
-    let x = 400;
+    let x = svgRef.current ? svgRef.current.clientWidth / 2 : 400;
     let y = 50;
     let parent = null;
     let horizontalSpacing = 150;
-
+  
     while (current) {
       parent = current;
       y += 100;
-      
+  
       if (value < parseInt(current.value)) {
         x -= horizontalSpacing;
         current = nodes.find(n => n.parent === current.id && n.isLeft);
@@ -53,12 +85,13 @@ const BinarySearchTree = () => {
         x += horizontalSpacing;
         current = nodes.find(n => n.parent === current.id && !n.isLeft);
       }
-      
+  
       horizontalSpacing = Math.max(50, horizontalSpacing * 0.8);
     }
-
+  
     return { x, y, parent: parent.id, isLeft: value < parseInt(parent.value) };
   };
+  
 
   const addNode = () => {
     if (!nodeValue.trim() || isNaN(parseInt(nodeValue))) {
@@ -195,6 +228,97 @@ const BinarySearchTree = () => {
       return () => clearTimeout(timeout);
     }
   }, [currentTraversalIndex, traversalOrder]);
+  const deleteNode = () => {
+    if (!deleteValue.trim() || isNaN(parseInt(deleteValue))) {
+      alert("Please enter a valid number to delete");
+      return;
+    }
+
+    const valueToDelete = parseInt(deleteValue);
+    const nodeToDelete = nodes.find(node => parseInt(node.value) === valueToDelete);
+
+    if (!nodeToDelete) {
+      alert("Node not found in the tree");
+      return;
+    }
+
+    let updatedNodes = [...nodes];
+    let updatedLines = [...lines];
+
+    // Case 1: Leaf node
+    if (!updatedNodes.some(n => n.parent === nodeToDelete.id)) {
+      updatedNodes = updatedNodes.filter(n => n.id !== nodeToDelete.id);
+      updatedLines = updatedLines.filter(l => l.endNode !== nodeToDelete.id);
+    }
+    // Case 2: Node with one child
+    else if (updatedNodes.filter(n => n.parent === nodeToDelete.id).length === 1) {
+      const childNode = updatedNodes.find(n => n.parent === nodeToDelete.id);
+      const parentNode = updatedNodes.find(n => n.id === nodeToDelete.parent);
+      
+      childNode.parent = parentNode ? parentNode.id : null;
+      childNode.isLeft = parentNode ? valueToDelete < parseInt(parentNode.value) : false;
+      
+      updatedNodes = updatedNodes.filter(n => n.id !== nodeToDelete.id);
+      updatedLines = updatedLines.filter(l => l.startNode !== nodeToDelete.id && l.endNode !== nodeToDelete.id);
+      
+      if (parentNode) {
+        updatedLines.push({
+          id: `${parentNode.id}-${childNode.id}`,
+          startNode: parentNode.id,
+          endNode: childNode.id,
+          startX: parentNode.x,
+          startY: parentNode.y,
+          endX: childNode.x,
+          endY: childNode.y,
+          ...calculateLineMetrics(parentNode.x, parentNode.y, childNode.x, childNode.y)
+        });
+      }
+    }
+    // Case 3: Node with two children
+    else {
+      const successorNode = findInorderSuccessor(nodeToDelete.id, updatedNodes);
+      nodeToDelete.value = successorNode.value;
+      
+      // Now remove the successor (which is guaranteed to have at most one child)
+      const successorChild = updatedNodes.find(n => n.parent === successorNode.id);
+      if (successorChild) {
+        successorChild.parent = successorNode.parent;
+        successorChild.isLeft = successorNode.isLeft;
+      }
+      
+      updatedNodes = updatedNodes.filter(n => n.id !== successorNode.id);
+      updatedLines = updatedLines.filter(l => l.startNode !== successorNode.id && l.endNode !== successorNode.id);
+      
+      if (successorChild) {
+        const successorParent = updatedNodes.find(n => n.id === successorNode.parent);
+        updatedLines.push({
+          id: `${successorParent.id}-${successorChild.id}`,
+          startNode: successorParent.id,
+          endNode: successorChild.id,
+          startX: successorParent.x,
+          startY: successorParent.y,
+          endX: successorChild.x,
+          endY: successorChild.y,
+          ...calculateLineMetrics(successorParent.x, successorParent.y, successorChild.x, successorChild.y)
+        });
+      }
+    }
+
+    setNodes(updatedNodes);
+    setLines(updatedLines);
+    setDeleteValue('');
+  };
+
+  const findInorderSuccessor = (nodeId, nodes) => {
+    const node = nodes.find(n => n.id === nodeId);
+    let current = nodes.find(n => n.parent === nodeId && !n.isLeft);
+    
+    while (current && nodes.some(n => n.parent === current.id && n.isLeft)) {
+      current = nodes.find(n => n.parent === current.id && n.isLeft);
+    }
+    
+    return current || node;
+  };
 
   return (
     <div className="w-full h-screen bg-gray-100 p-4">
@@ -212,6 +336,19 @@ const BinarySearchTree = () => {
           className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md"
         >
           Add Node
+        </button>
+        <input
+          type="number"
+          value={deleteValue}
+          onChange={(e) => setDeleteValue(e.target.value)}
+          placeholder="Enter number to delete"
+          className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+        />
+        <button
+          onClick={deleteNode}
+          className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md"
+        >
+          Delete Node
         </button>
         <button
           onClick={() => startTraversal('inorder')}
