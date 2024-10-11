@@ -1,15 +1,5 @@
 "use client"
 import React, { useState, useEffect } from 'react';
-// import { bubbleSort } from './functions/sorting/bubbleSort.js';
-// import { quickSort } from './functions/sorting/quickSort.js';
-// import { insertionSort } from './functions/sorting/insertionSort.js';
-// import { selectionSort } from './functions/sorting/selectionSort.js';
-// import { mergeSort } from './functions/sorting/mergeSort.js';
-// import { heapSort } from './functions/sorting/heapSort.js';
-// import { shellSort } from './functions/sorting/shellSort.js';
-// import { timSort } from './functions/sorting/timSort.js';
-// import { radixSort } from './functions/sorting/radixSort.js';
-// import { bucketSort } from './functions/sorting/bucketSort.js';
 import { bubbleSort } from '@/components/sortingAlgo/bubbleSort';
 import { quickSort } from '@/components/sortingAlgo/quickSort';
 import { insertionSort } from '@/components/sortingAlgo/insertionSort';
@@ -20,6 +10,7 @@ import { shellSort } from '@/components/sortingAlgo/shellSort';
 import { timSort } from '@/components/sortingAlgo/timSort';
 import { radixSort } from '@/components/sortingAlgo/radixSort';
 import { bucketSort } from '@/components/sortingAlgo/bucketSort';
+
 const AVAILABLE_ALGORITHMS = {
     bubble: { name: 'Bubble Sort', color: 'rgba(59, 130, 246, 0.8)', borderColor: '#3b82f6' },
     quick: { name: 'Quick Sort', color: 'rgba(236, 72, 153, 0.8)', borderColor: '#ec4899' },
@@ -33,29 +24,33 @@ const AVAILABLE_ALGORITHMS = {
     bucket: { name: 'Bucket Sort', color: 'rgba(255, 105, 180, 0.8)', borderColor: '#ff69b4' }
 };
 
-// Fixed array for sorting
-const FIXED_ARRAY = [5, 35, 20, 80, 50, 90, 10, 60, 45, 70, 25, 15, 85, 30, 55, 95, 40, 75, 65, 100];
-
 const SortingAlgo = () => {
     const [selectedAlgorithms, setSelectedAlgorithms] = useState(['bubble']);
     const [arrays, setArrays] = useState(() => {
-        return { bubble: FIXED_ARRAY };
+        return { bubble: [5, 35, 20, 80, 50, 90, 10, 60, 45, 70, 25, 15, 85, 30, 55, 95, 40, 75, 65, 100] };
     });
     const [sorting, setSorting] = useState(false);
     const [showBars, setShowBars] = useState(true);
+    const [inputArray, setInputArray] = useState(arrays.bubble.join(', '));
 
     useEffect(() => {
+        const initialArray = inputArray.split(',').map(num => parseInt(num.trim(), 10));
         const newArrays = {};
         selectedAlgorithms.forEach(algo => {
-            newArrays[algo] = [...FIXED_ARRAY];  // Use the fixed array
+            newArrays[algo] = [...initialArray];
         });
         setArrays(newArrays);
-    }, [selectedAlgorithms]);
+    }, [selectedAlgorithms, inputArray]);
+
+    const handleInputChange = (event) => {
+        setInputArray(event.target.value);
+    };
 
     const resetArrays = () => {
+        const initialArray = inputArray.split(',').map(num => parseInt(num.trim(), 10));
         const newArrays = {};
         selectedAlgorithms.forEach(algo => {
-            newArrays[algo] = [...FIXED_ARRAY];  // Reset to the fixed array
+            newArrays[algo] = [...initialArray];
         });
         setArrays(newArrays);
     };
@@ -71,6 +66,7 @@ const SortingAlgo = () => {
         }
         setSorting(false);
     };
+
     const isArraySorted = (array) => {
         for (let i = 0; i < array.length - 1; i++) {
             if (array[i] > array[i + 1]) {
@@ -79,6 +75,7 @@ const SortingAlgo = () => {
         }
         return true;
     };
+
     const sortArray = async (algorithmKey) => {
         const currentArray = [...arrays[algorithmKey]];
 
@@ -129,8 +126,6 @@ const SortingAlgo = () => {
                 console.error('Unknown sorting algorithm');
         }
     };
-
-
 
     const toggleView = () => {
         setShowBars(!showBars);
@@ -206,6 +201,7 @@ const SortingAlgo = () => {
             </div>
         );
     };
+
     const getGridStyle = () => {
         const count = selectedAlgorithms.length;
         return {
@@ -214,90 +210,94 @@ const SortingAlgo = () => {
             gap: '2rem',
         };
     };
-    
 
     return (
         <div style={{ padding: '1rem', fontFamily: 'Arial, sans-serif' }}>
             <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem' }}>Algorithm Comparison Visualizer</h1>
 
-            <div style={{
-                marginBottom: '1rem',
-                padding: '1rem',
-                backgroundColor: '#f3f4f6',
-                borderRadius: '0.5rem'
-            }}>
-                <h2 style={{ marginBottom: '0.5rem', fontSize: '1rem', fontWeight: 'bold' }}>Select Algorithms to Compare:</h2>
-                <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-                    {Object.entries(AVAILABLE_ALGORITHMS).map(([key, { name, color }]) => (
-                        <label key={key} style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5rem',
-                            padding: '0.5rem',
-                            backgroundColor: 'white',
-                            borderRadius: '0.25rem',
-                            cursor: 'pointer'
-                        }}>
-                            <input
-                                type="checkbox"
-                                checked={selectedAlgorithms.includes(key)}
-                                onChange={() => handleAlgorithmToggle(key)}
-                                disabled={sorting || (selectedAlgorithms.length === 1 && selectedAlgorithms.includes(key))}
-                            />
-                            <span style={{
-                                display: 'inline-block',
-                                width: '1rem',
-                                height: '1rem',
-                                backgroundColor: color,
-                                borderRadius: '0.25rem'
-                            }}></span>
-                            {name}
-                        </label>
+            <div style={{ marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <label style={{ fontWeight: 'bold' }}>Input Array (comma-separated):</label>
+                <input
+                    type="text"
+                    value={inputArray}
+                    onChange={handleInputChange}
+                    disabled={sorting}
+                    style={{
+                        padding: '0.5rem',
+                        border: '1px solid #ccc',
+                        borderRadius: '0.25rem',
+                        width: '100%'
+                    }}
+                />
+                <button onClick={resetArrays} disabled={sorting} style={{
+                    padding: '0.5rem',
+                    border: 'none',
+                    borderRadius: '0.25rem',
+                    backgroundColor: '#4caf50',
+                    color: 'white',
+                    fontWeight: 'bold',
+                    cursor: sorting ? 'not-allowed' : 'pointer'
+                }}>Reset Array</button>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                <div style={{ display: 'flex', gap: '1rem' }}>
+                    {Object.keys(AVAILABLE_ALGORITHMS).map(key => (
+                        <button
+                            key={key}
+                            onClick={() => handleAlgorithmToggle(key)}
+                            style={{
+                                padding: '0.5rem',
+                                backgroundColor: selectedAlgorithms.includes(key) ? AVAILABLE_ALGORITHMS[key].color : '#ccc',
+                                color: 'white',
+                                fontWeight: 'bold',
+                                border: 'none',
+                                borderRadius: '0.25rem',
+                                cursor: sorting ? 'not-allowed' : 'pointer'
+                            }}
+                            disabled={sorting}
+                        >
+                            {AVAILABLE_ALGORITHMS[key].name}
+                        </button>
                     ))}
                 </div>
-            </div>
-
-            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
-                <button
-                    onClick={startSort}
-                    disabled={sorting || selectedAlgorithms.length === 0}
-                    style={{
-                        padding: '0.5rem 1rem',
-                        borderRadius: '0.25rem',
-                        backgroundColor: selectedAlgorithms.length === 0 ? '#ccc' : '#3b82f6',
-                        color: 'white',
-                        border: 'none'
-                    }}
-                >
-                    Start Sorting
-                </button>
-                <button
-                    onClick={resetArrays}
-                    disabled={sorting}
-                    style={{ padding: '0.5rem 1rem', borderRadius: '0.25rem', backgroundColor: '#10b981', color: 'white', border: 'none' }}
-                >
-                    Reset Arrays
-                </button>
-                <button
-                    onClick={toggleView}
-                    style={{ padding: '0.5rem 1rem', borderRadius: '0.25rem', backgroundColor: '#f59e0b', color: 'white', border: 'none' }}
-                >
-                    Toggle View
+                <button onClick={toggleView} style={{
+                    padding: '0.5rem',
+                    backgroundColor: '#007bff',
+                    color: 'white',
+                    fontWeight: 'bold',
+                    border: 'none',
+                    borderRadius: '0.25rem',
+                    cursor: sorting ? 'not-allowed' : 'pointer'
+                }}>
+                    {showBars ? 'Switch to Grid View' : 'Switch to Bars View'}
                 </button>
             </div>
 
-            {/* Visualizations */}
+            <div style={{ marginBottom: '1rem' }}>
+                <button onClick={startSort} disabled={sorting} style={{
+                    padding: '1rem',
+                    backgroundColor: '#f44336',
+                    color: 'white',
+                    fontWeight: 'bold',
+                    border: 'none',
+                    borderRadius: '0.25rem',
+                    cursor: sorting ? 'not-allowed' : 'pointer',
+                    width: '100%'
+                }}>
+                    {sorting ? 'Sorting...' : 'Start Sorting'}
+                </button>
+            </div>
+
             <div style={getGridStyle()}>
-                {selectedAlgorithms.map((algo) => (
-                    <div key={algo}>
-                        <h3 style={{
-                            marginBottom: '0.5rem',
-                            color: AVAILABLE_ALGORITHMS[algo].borderColor,
-                            fontWeight: 'bold'
-                        }}>
-                            {AVAILABLE_ALGORITHMS[algo].name}
-                        </h3>
-                        {renderArrayVisualization(algo)}
+                {selectedAlgorithms.map(algorithmKey => (
+                    <div key={algorithmKey} style={{
+                        border: `2px solid ${AVAILABLE_ALGORITHMS[algorithmKey].borderColor}`,
+                        padding: '1rem',
+                        borderRadius: '0.25rem'
+                    }}>
+                        <h2 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>{AVAILABLE_ALGORITHMS[algorithmKey].name}</h2>
+                        {renderArrayVisualization(algorithmKey)}
                     </div>
                 ))}
             </div>
