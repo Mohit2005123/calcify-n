@@ -1,7 +1,6 @@
 "use client"
-import { useState, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 
-// AVL Tree Node class
 class AVLNode {
   constructor(value) {
     this.value = value;
@@ -13,266 +12,313 @@ class AVLNode {
   }
 }
 
-const AVLTreeVisualizer = () => {
+export default function AVLTreeVisualizer() {
   const [root, setRoot] = useState(null);
   const [inputValue, setInputValue] = useState('');
-  const [error, setError] = useState('');
-  const canvasRef = useRef(null);
-  const [draggingNode, setDraggingNode] = useState(null);
-  const [nodes, setNodes] = useState([]);
-  const [lines, setLines] = useState([]);
+  const [draggedNode, setDraggedNode] = useState(null);
+  const [nodes, setNodes] = useState(new Map());
+  const svgRef = useRef(null);
 
-  // Helper function to get height
+  // Constants for angle constraints
+  const MIN_ANGLE = -60; // Maximum angle to the left (degrees)
+  const MAX_ANGLE = 60;  // Maximum angle to the right (degrees)
+  const MIN_DISTANCE = 50; // Minimum distance between parent and child
+
+  // Calculate angle between two points
+  const calculateAngle = (x1, y1, x2, y2) => {
+    return Math.atan2(y2 - y1, x2 - x1) * (180 / Math.PI);
+  };
+
+  // Calculate distance between two points
+  const calculateDistance = (x1, y1, x2, y2) => {
+    return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+  };
+
+  // Calculate constrained position
+  const getConstrainedPosition = (parentX, parentY, childX, childY, isLeft) => {
+    const angle = calculateAngle(parentX, parentY, childX, childY);
+    const distance = Math.max(calculateDistance(parentX, parentY, childX, childY), MIN_DISTANCE);
+    
+    // Constrain angle based on whether it's a left or right child
+    let constrainedAngle;
+    if (isLeft) {
+      constrainedAngle = Math.max(MIN_ANGLE, Math.min(-10, angle));
+    } else {
+      constrainedAngle = Math.min(MAX_ANGLE, Math.max(10, angle));
+    }
+    
+    // Convert angle back to coordinates
+    const radians = constrainedAngle * (Math.PI / 180);
+    return {
+      x: parentX + distance * Math.cos(radians),
+      y: parentY + distance * Math.sin(radians)
+    };
+  };
+
+  // Convert tree to flat structure with positions
+  const flattenTree = useCallback((node, x = 0, y = 0, level = 1) => {
+    if (!node) return;
+    
+    const spacing = 80 / (level + 1);
+    
+    // Use existing position if node has been dragged, otherwise calculate default position
+    if (!nodes.has(node.value)) {
+      nodes.set(node.value, { x, y, node });
+    }
+    
+    if (node.left) {
+      const leftX = x - spacing;
+      const leftY = y + 80;
+      flattenTree(node.left, leftX, leftY, level + 1);
+    }
+    if (node.right) {
+      const rightX = x + spacing;
+      const rightY = y + 80;
+      flattenTree(node.right, rightX, rightY, level + 1);
+    }
+  }, [nodes]);
+
+  // AVL Tree operations (unchanged)
   const getHeight = (node) => {
     if (!node) return 0;
     return node.height;
   };
-
-  // Get balance factor
+  
   const getBalance = (node) => {
     if (!node) return 0;
     return getHeight(node.left) - getHeight(node.right);
   };
-
-  // Right rotate
+  
   const rightRotate = (y) => {
     const x = y.left;
     const T2 = x.right;
-
+    
     x.right = y;
     y.left = T2;
-
+    
     y.height = Math.max(getHeight(y.left), getHeight(y.right)) + 1;
     x.height = Math.max(getHeight(x.left), getHeight(x.right)) + 1;
-
+    
     return x;
   };
-
-  // Left rotate
+  
   const leftRotate = (x) => {
     const y = x.right;
     const T2 = y.left;
-
+    
     y.left = x;
     x.right = T2;
-
+    
     x.height = Math.max(getHeight(x.left), getHeight(x.right)) + 1;
     y.height = Math.max(getHeight(y.left), getHeight(y.right)) + 1;
-
+    
     return y;
   };
 
-  // Insert a node
-  const insert = (node, value) => {
-    if (!node) {
-      return new AVLNode(value);
-    }
+  // Handle drag events with constraints
+  const handleDragStart = (e, value) => {
+    setDraggedNode(value);
+    e.stopPropagation();
+  };
 
+  const findParentNode = (searchNode, targetValue) => {
+    if (!searchNode) return null;
+    if ((searchNode.left && searchNode.left.value === targetValue) ||
+        (searchNode.right && searchNode.right.value === targetValue)) {
+      return searchNode;
+    }
+    return findParentNode(searchNode.left, targetValue) || findParentNode(searchNode.right, targetValue);
+  };
+
+  const handleDrag = (e) => {
+    if (!draggedNode || !svgRef.current) return;
+    
+    const svg = svgRef.current;
+    const point = svg.createSVGPoint();
+    point.x = e.clientX;
+    point.y = e.clientY;
+    const svgPoint = point.matrixTransform(svg.getScreenCTM().inverse());
+    
+    const parentNode = findParentNode(root, draggedNode);
+    if (parentNode) {
+      const parentData = nodes.get(parentNode.value);
+      const isLeft = parentNode.left && parentNode.left.value === draggedNode;
+      
+      // Get constrained position
+      const constrainedPos = getConstrainedPosition(
+        parentData.x,
+        parentData.y,
+        svgPoint.x,
+        svgPoint.y,
+        isLeft
+      );
+
+      const nodeData = nodes.get(draggedNode);
+      if (nodeData) {
+        nodes.set(draggedNode, {
+          ...nodeData,
+          x: constrainedPos.x,
+          y: constrainedPos.y
+        });
+        setNodes(new Map(nodes));
+      }
+    } else if (draggedNode === root.value) {
+      // Root node can move freely within bounds
+      const nodeData = nodes.get(draggedNode);
+      if (nodeData) {
+        nodes.set(draggedNode, {
+          ...nodeData,
+          x: svgPoint.x,
+          y: svgPoint.y
+        });
+        setNodes(new Map(nodes));
+      }
+    }
+  };
+
+  const handleDragEnd = () => {
+    setDraggedNode(null);
+  };
+
+  // Insert with position handling
+  const insert = useCallback((node, value) => {
+    if (!node) return new AVLNode(value);
+    
     if (value < node.value) {
       node.left = insert(node.left, value);
     } else if (value > node.value) {
       node.right = insert(node.right, value);
     } else {
-      return node; // Duplicate values not allowed
+      return node;
     }
-
+    
     node.height = Math.max(getHeight(node.left), getHeight(node.right)) + 1;
-
+    
     const balance = getBalance(node);
-
-    // Left Left Case
+    
     if (balance > 1 && value < node.left.value) {
       return rightRotate(node);
     }
-
-    // Right Right Case
     if (balance < -1 && value > node.right.value) {
       return leftRotate(node);
     }
-
-    // Left Right Case
     if (balance > 1 && value > node.left.value) {
       node.left = leftRotate(node.left);
       return rightRotate(node);
     }
-
-    // Right Left Case
     if (balance < -1 && value < node.right.value) {
       node.right = rightRotate(node.right);
       return leftRotate(node);
     }
-
+    
     return node;
-  };
+  }, []);
 
-  // Calculate node positions
-  const calculatePositions = (node, level = 0, position = 0, width = 800) => {
-    if (!node) return;
-
-    const spacing = width / Math.pow(2, level + 1);
-    node.x = position;
-    node.y = level * 80 + 100;
-
-    calculatePositions(node.left, level + 1, position - spacing, width);
-    calculatePositions(node.right, level + 1, position + spacing, width);
-  };
-
-  // Update visual representation
-  const updateVisualization = () => {
-    if (!root) {
-      setNodes([]);
-      setLines([]);
-      return;
-    }
-
-    calculatePositions(root, 0, 400, 800);
-    const newNodes = [];
-    const newLines = [];
-
-    const traverseTree = (node) => {
-      if (!node) return;
-
-      newNodes.push({
-        x: node.x,
-        y: node.y,
-        value: node.value
-      });
-
-      if (node.left) {
-        newLines.push({
-          x1: node.x,
-          y1: node.y,
-          x2: node.left.x,
-          y2: node.left.y
-        });
-        traverseTree(node.left);
-      }
-
-      if (node.right) {
-        newLines.push({
-          x1: node.x,
-          y1: node.y,
-          x2: node.right.x,
-          y2: node.right.y
-        });
-        traverseTree(node.right);
-      }
-    };
-
-    traverseTree(root);
-    setNodes(newNodes);
-    setLines(newLines);
-  };
-
-  // Handle node addition
   const handleAddNode = () => {
     const value = parseInt(inputValue);
-    if (isNaN(value)) {
-      setError('Please enter a valid number');
-      return;
+    if (!isNaN(value)) {
+      setRoot((prevRoot) => {
+        const newRoot = insert(prevRoot, value);
+        setNodes(new Map());
+        return newRoot;
+      });
+      setInputValue('');
     }
-    setError('');
-    setRoot(insert(root, value));
-    setInputValue('');
   };
 
-  // Update visualization when root changes
   useEffect(() => {
-    updateVisualization();
-  }, [root]);
+    if (root) {
+      flattenTree(root);
+      setNodes(new Map(nodes));
+    }
+  }, [root, flattenTree]);
 
-  const handleMouseDown = (e, lineIndex) => {
-    setDraggingNode({ index: lineIndex, startX: e.clientX, startY: e.clientY });
+  // Render tree connection line
+  const TreeLine = ({ from, to }) => {
+    const fromNode = nodes.get(from.value);
+    const toNode = nodes.get(to.value);
+    
+    if (!fromNode || !toNode) return null;
+
+    return (
+      <line
+        x1={fromNode.x}
+        y1={fromNode.y}
+        x2={toNode.x}
+        y2={toNode.y}
+        className="stroke-gray-400"
+        strokeWidth="2"
+      />
+    );
   };
 
-  const handleMouseMove = (e) => {
-    if (!draggingNode) return;
-
-    const dx = e.clientX - draggingNode.startX;
-    const dy = e.clientY - draggingNode.startY;
-
-    setLines(prevLines => {
-      const newLines = [...prevLines];
-      const line = newLines[draggingNode.index];
-      line.x2 += dx;
-      line.y2 += dy;
-      return newLines;
-    });
-
-    setDraggingNode({
-      ...draggingNode,
-      startX: e.clientX,
-      startY: e.clientY
-    });
-  };
-
-  const handleMouseUp = () => {
-    setDraggingNode(null);
+  // Render tree node
+  const TreeNode = ({ node }) => {
+    if (!node || !nodes.has(node.value)) return null;
+    
+    const nodeData = nodes.get(node.value);
+    
+    return (
+      <>
+        {node.left && <TreeLine from={node} to={node.left} />}
+        {node.right && <TreeLine from={node} to={node.right} />}
+        
+        <g
+          transform={`translate(${nodeData.x},${nodeData.y})`}
+          onMouseDown={(e) => handleDragStart(e, node.value)}
+          className="cursor-move"
+        >
+          <circle
+            r="20"
+            className={`${draggedNode === node.value ? 'fill-blue-600' : 'fill-blue-500'} stroke-white stroke-2`}
+          />
+          <text
+            className="text-white text-sm font-bold select-none"
+            textAnchor="middle"
+            dy=".3em"
+          >
+            {node.value}
+          </text>
+        </g>
+        
+        {node.left && <TreeNode node={node.left} />}
+        {node.right && <TreeNode node={node.right} />}
+      </>
+    );
   };
 
   return (
-    <div className="flex flex-col items-center w-full min-h-screen bg-gray-100 p-4">
-      <div className="mb-4 flex gap-2">
+    <div className="flex flex-col items-center gap-4 p-4">
+      <div className="flex gap-2">
         <input
-          type="text"
+          type="number"
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
-          className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="Enter number"
+          className="px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
+          placeholder="Enter value"
         />
         <button
           onClick={handleAddNode}
-          className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none"
         >
           Add Node
         </button>
       </div>
-      {error && <div className="text-red-500 mb-4">{error}</div>}
       
-      <svg 
-        width="800" 
-        height="600" 
-        className="border rounded-lg bg-white"
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-      >
-        {lines.map((line, index) => (
-          <line
-            key={index}
-            x1={line.x1}
-            y1={line.y1}
-            x2={line.x2}
-            y2={line.y2}
-            stroke="black"
-            strokeWidth="2"
-            onMouseDown={(e) => handleMouseDown(e, index)}
-            className="cursor-move"
-          />
-        ))}
-        {nodes.map((node, index) => (
-          <g key={index}>
-            <circle
-              cx={node.x}
-              cy={node.y}
-              r="20"
-              fill="white"
-              stroke="black"
-              strokeWidth="2"
-            />
-            <text
-              x={node.x}
-              y={node.y}
-              textAnchor="middle"
-              dominantBaseline="middle"
-              className="select-none"
-            >
-              {node.value}
-            </text>
-          </g>
-        ))}
-      </svg>
+      <div className="w-full h-[600px] border border-gray-200 rounded">
+        <svg
+          ref={svgRef}
+          width="100%"
+          height="100%"
+          viewBox="-400 -50 800 600"
+          className="overflow-visible"
+          onMouseMove={handleDrag}
+          onMouseUp={handleDragEnd}
+          onMouseLeave={handleDragEnd}
+        >
+          {root && <TreeNode node={root} />}
+        </svg>
+      </div>
     </div>
   );
-};
-
-export default AVLTreeVisualizer;
+}
