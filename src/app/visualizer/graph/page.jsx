@@ -1,338 +1,328 @@
 "use client"
 import React, { useState, useRef } from 'react';
-import { Plus, Play, Trash2, GitBranch, ToggleLeft, ToggleRight } from 'lucide-react';
-import { bfs, dfs } from '@/components/graph/traversal';
-import { dijkstra } from '@/components/graph/shortestPath';
-const Graph = () => {
+
+const GraphVisualization = () => {
   const [nodes, setNodes] = useState([]);
   const [edges, setEdges] = useState([]);
-  const [inputValue, setInputValue] = useState('');
-  const [draggingId, setDraggingId] = useState(null);
-  const [selectedAlgorithm, setSelectedAlgorithm] = useState('bfs');
-  const [isDrawingLine, setIsDrawingLine] = useState(false);
-  const [lineStart, setLineStart] = useState(null);
+  const [isAddingLine, setIsAddingLine] = useState(false);
+  const [isWeighted, setIsWeighted] = useState(false);
+  const [isBidirectional, setIsBidirectional] = useState(false);
+  const [startNode, setStartNode] = useState(null);
+  const [endNode, setEndNode] = useState(null);
+  const [nodeName, setNodeName] = useState('');
+  const [draggedNode, setDraggedNode] = useState(null);
   const [tempLine, setTempLine] = useState(null);
-  const [highlightedNodes, setHighlightedNodes] = useState([]);
-  const [highlightedEdges, setHighlightedEdges] = useState([]);
-  const [isAnimating, setIsAnimating] = useState(false);
-  const canvasRef = useRef(null);
-  const [nextId, setNextId] = useState(0);
-  const [startNode, setStartNode]= useState(null);
-  const [endNode, setEndNode]= useState(null);
-  const [isWeighted, setIsWeighted]= useState(false);
+  const [isChoosingStart, setIsChoosingStart] = useState(false);
+  const [isChoosingEnd, setIsChoosingEnd] = useState(false);
+  const [awaitingWeight, setAwaitingWeight] = useState(false);
+  const [pendingEdge, setPendingEdge] = useState(null);
+  const svgRef = useRef(null);
+
   const addNode = () => {
-    if (inputValue.trim()) {
-      // Define constants for layout
-      const maxNodesPerRow = 8; // Adjust as needed for spacing
-      const nodeSpacingX = 80; // Horizontal spacing between nodes
-      const nodeSpacingY = 80; // Vertical spacing between rows
+    if (nodeName.trim() !== '') {
+      const svgRect = svgRef.current.getBoundingClientRect();
+      const x = nodes.length * 150 % (svgRect.width - 150) + 75;
+      const y = Math.floor(nodes.length / Math.floor((svgRect.width - 150) / 150)) * 150 + 75;
+      setNodes([...nodes, { id: Date.now(), name: nodeName, x, y }]);
+      setNodeName('');
+    }
+  };
+
+  const addEdge = (start, end, weight = null) => {
+    if (start && end && start !== end) {
+      const timestamp = Date.now();
   
-      // Calculate the row and column for the new node
-      const row = Math.floor(nextId / maxNodesPerRow);
-      const col = nextId % maxNodesPerRow;
+      // If the graph is weighted and no weight is provided, assign a default weight of 1
+      if (isWeighted && weight === null) {
+        weight = 1;
+      }
   
-      const newNode = {
-        id: nextId,
-        value: inputValue,
-        position: {
-          x: 50 + col * nodeSpacingX, // Start with an offset and adjust spacing
-          y: 50 + row * nodeSpacingY, // Start with an offset and adjust row spacing
-        },
-      };
-  
-      setNodes([...nodes, newNode]);
-      setInputValue('');
-      setNextId(nextId + 1);
+      if (!isBidirectional) {
+        setEdges((prev) => [
+          ...prev,
+          { id: timestamp, start, end, weight, isForward: true },
+          { id: timestamp + 1, start: end, end: start, weight, isForward: false }
+        ]);
+      } else {
+        setEdges((prev) => [
+          ...prev,
+          { id: timestamp, start, end, weight, isDirected: true }
+        ]);
+      }
     }
   };
   
+
+  const handleNodeClick = (node) => {
+    if (isAddingLine) {
+      if (!tempLine) {
+        setTempLine({ start: node, end: node });
+      } else {
+        if (isWeighted) {
+          setPendingEdge({ start: tempLine.start, end: node });
+          setAwaitingWeight(true);
+        } else {
+          addEdge(tempLine.start, node);
+        }
+        setTempLine(null);
+        setIsAddingLine(false);
+      }
+    } else if (isChoosingStart) {
+      setStartNode(node);
+      setIsChoosingStart(false);
+    } else if (isChoosingEnd) {
+      setEndNode(node);
+      setIsChoosingEnd(false);
+    }
+  };
+
+  const handleWeightSubmit = (event) => {
+    event.preventDefault();
+    const weight = parseInt(event.target.weight.value);
+    if (!isNaN(weight) && pendingEdge) {
+      addEdge(pendingEdge.start, pendingEdge.end, weight);
+      setPendingEdge(null);
+      setAwaitingWeight(false);
+      event.target.reset();
+    }
+  };
+
+  const handleMouseDown = (e, node) => {
+    setDraggedNode(node);
+  };
+
+  const handleMouseMove = (e) => {
+    if (draggedNode) {
+      const svgRect = svgRef.current.getBoundingClientRect();
+      const x = e.clientX - svgRect.left;
+      const y = e.clientY - svgRect.top;
+      setNodes(nodes.map(n => n.id === draggedNode.id ? { ...n, x, y } : n));
+    }
+    if (tempLine) {
+      const svgRect = svgRef.current.getBoundingClientRect();
+      const x = e.clientX - svgRect.left;
+      const y = e.clientY - svgRect.top;
+      setTempLine(prev => ({ ...prev, end: { x, y } }));
+    }
+  };
+
+  const handleMouseUp = () => {
+    setDraggedNode(null);
+  };
 
   const clearGraph = () => {
     setNodes([]);
     setEdges([]);
-    setHighlightedNodes([]);
-    setHighlightedEdges([]);
-    setNextId(0);
-    setIsDrawingLine(false);
-    setLineStart(null);
+    setStartNode(null);
+    setEndNode(null);
     setTempLine(null);
+    setAwaitingWeight(false);
+    setPendingEdge(null);
   };
 
-  const handleDragStart = (e, id) => {
-    if (!isDrawingLine) {
-      setDraggingId(id);
-    }
+  const calculateArrowPosition = (start, end, nodeRadius = 30) => {
+    const dx = end.x - start.x;
+    const dy = end.y - start.y;
+    const angle = Math.atan2(dy, dx);
+    const length = Math.sqrt(dx * dx + dy * dy);
+    
+    const arrowX = end.x - (dx * (nodeRadius + 5) / length);
+    const arrowY = end.y - (dy * (nodeRadius + 5) / length);
+    
+    return { x: arrowX, y: arrowY, angle: angle * 180 / Math.PI };
   };
 
-  const handleDragOver = (e) => {
-    e.preventDefault();
+  const renderArrow = (start, end, isForward) => {
+    const arrowLength = 15;
+    const arrowWidth = 7;
+    const { x, y, angle } = calculateArrowPosition(start, end);
+
+    return (
+      <polygon
+        points={`0,-${arrowWidth} ${arrowLength},0 0,${arrowWidth}`}
+        fill="black"
+        transform={`translate(${x},${y}) rotate(${angle})`}
+      />
+    );
   };
 
-  const handleDrop = (e) => {
-    e.preventDefault();
-    if (draggingId !== null) {
-      const rect = canvasRef.current.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-
-      setNodes(nodes.map(node =>
-        node.id === draggingId
-          ? { ...node, position: { x, y } }
-          : node
-      ));
-      setDraggingId(null);
-    }
-  };
-
-  const handleCanvasMouseMove = (e) => {
-    if (isDrawingLine && lineStart !== null) {
-      const rect = canvasRef.current.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      
-      setTempLine({
-        x1: nodes.find(n => n.id === lineStart)?.position.x + 25,
-        y1: nodes.find(n => n.id === lineStart)?.position.y + 25,
-        x2: x,
-        y2: y
-      });
-    }
-  };
-  const handleNodeClick = (nodeId) => {
-    if (!isDrawingLine) {
-      if (!startNode) {
-        setStartNode(nodeId);
-      } else if (!endNode && nodeId !== startNode) {
-        setEndNode(nodeId);
-      } else {
-        setStartNode(nodeId);
-        setEndNode(null);
-      }
-      return;
-    }
-
-    if (lineStart === null) {
-      setLineStart(nodeId);
-    } else if (lineStart !== nodeId) {
-      let weight = 1;
-      if (isWeighted) {
-        const inputWeight = prompt("Enter edge weight:", "1");
-        weight = parseInt(inputWeight, 10) || 1;
-      }
-      const newEdge = {
-        id: `${lineStart}-${nodeId}`,
-        from: lineStart,
-        to: nodeId,
-        weight: weight
-      };
-      
-      if (!edges.some(edge => 
-        (edge.from === lineStart && edge.to === nodeId) ||
-        (edge.from === nodeId && edge.to === lineStart)
-      )) {
-        setEdges([...edges, newEdge]);
-      }
-      
-      setLineStart(null);
-      setTempLine(null);
-    }
-  };
-  const toggleWeighted = () => {
-    setIsWeighted(!isWeighted);
-    if (selectedAlgorithm === 'dijkstra' && !isWeighted) {
-      setSelectedAlgorithm('bfs');
-    }
-    // Reset edge weights to 1 when switching to unweighted
-    if (isWeighted) {
-      setEdges(edges.map(edge => ({ ...edge, weight: 1 })));
-    }
-  };
-
-
-  const toggleLineDrawing = () => {
-    setIsDrawingLine(!isDrawingLine);
-    if (isDrawingLine) {
-      setLineStart(null);
-      setTempLine(null);
-    }
-  };
-  const startVisualization = async () => {
-    if (nodes.length === 0 || !startNode || (selectedAlgorithm === 'dijkstra' && !endNode)) return;
-    setIsAnimating(true);
-    setHighlightedNodes([]);
-    setHighlightedEdges([]);
-  
-    if (selectedAlgorithm === 'dijkstra' && isWeighted) {
-      console.log(startNode);
-      console.log(endNode);
-      const { path, visitedOrder } = await dijkstra(startNode, endNode, nodes, edges);
-      
-      for (let node of visitedOrder) {
-        setHighlightedNodes(prev => [...prev, node]);
-        await new Promise(resolve => setTimeout(resolve, 500));
-      }
-      
-      for (let i = 0; i < path.length - 1; i++) {
-        const edgeId = `${path[i]}-${path[i+1]}`;
-        setHighlightedEdges(prev => [...prev, edgeId]);
-        await new Promise(resolve => setTimeout(resolve, 500));
-      }
-    } else if (selectedAlgorithm === 'bfs') {
-      await bfs(startNode, edges, setHighlightedNodes, setHighlightedEdges);
-    } else if (selectedAlgorithm === 'dfs') {
-      await dfs(startNode, edges, setHighlightedNodes, setHighlightedEdges);
-    }
-  
-    setIsAnimating(false);
-  };
   return (
-    <div className="p-4 max-w-4xl mx-auto">
-      <div className="mb-6 flex gap-4 items-center">
-        <input
-          type="text"
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          placeholder="Enter node value"
-          className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
+    <div className="w-full h-screen flex flex-col">
+      <div className="flex justify-between p-4 bg-gray-100">
+        <div className="flex items-center">
+          <input
+            type="text"
+            value={nodeName}
+            onChange={(e) => setNodeName(e.target.value)}
+            placeholder="Enter node name"
+            className="mr-2 px-2 py-1 border rounded"
+          />
+          <button
+            className="px-4 py-2 bg-green-500 text-white rounded"
+            onClick={addNode}
+          >
+            Add Node
+          </button>
+        </div>
         <button
-          onClick={addNode}
-          className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 flex items-center gap-2"
+          className={`px-4 py-2 ${isAddingLine ? 'bg-red-500' : 'bg-blue-500'} text-white rounded`}
+          onClick={() => {
+            setIsAddingLine(!isAddingLine);
+            setTempLine(null);
+          }}
         >
-          <Plus size={20} /> Add Node
+          {isAddingLine ? 'Cancel Add Line' : 'Add Line'}
         </button>
         <button
-          onClick={toggleLineDrawing}
-          className={`px-4 py-2 rounded-md flex items-center gap-2 ${
-            isDrawingLine 
-              ? 'bg-yellow-500 hover:bg-yellow-600 text-white' 
-              : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
-          }`}
-        >
-          <GitBranch size={20} /> {isDrawingLine ? 'Cancel Line' : 'Add Line'}
-        </button>
-        <button
+          className="px-4 py-2 bg-red-500 text-white rounded"
           onClick={clearGraph}
-          className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 flex items-center gap-2"
         >
-          <Trash2 size={20} /> Clear Graph
+          Clear Graph
+        </button>
+        <div className="flex items-center">
+          <input
+            type="checkbox"
+            id="weighted"
+            checked={isWeighted}
+            onChange={() => setIsWeighted(!isWeighted)}
+            className="mr-2"
+          />
+          <label htmlFor="weighted">Weighted</label>
+        </div>
+        <div className="flex items-center">
+          <input
+            type="checkbox"
+            id="bidirectional"
+            checked={isBidirectional}
+            onChange={() => setIsBidirectional(!isBidirectional)}
+            className="mr-2"
+          />
+          <label htmlFor="bidirectional">Bidirectional</label>
+        </div>
+        <button
+          className="px-4 py-2 bg-purple-500 text-white rounded"
+          onClick={() => {
+            setIsChoosingStart(true);
+            setIsChoosingEnd(false);
+          }}
+        >
+          Choose Start
         </button>
         <button
-          onClick={toggleWeighted}
-          className={`px-4 py-2 rounded-md flex items-center gap-2 ${
-            isWeighted
-              ? 'bg-indigo-500 hover:bg-indigo-600 text-white'
-              : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
-          }`}
+          className="px-4 py-2 bg-green-500 text-white rounded"
+          onClick={() => {
+            setIsChoosingEnd(true);
+            setIsChoosingStart(false);
+          }}
         >
-          {isWeighted ? <ToggleRight size={20} /> : <ToggleLeft size={20} />}
-          {isWeighted ? 'Weighted' : 'Unweighted'}
+          Choose End
         </button>
       </div>
-
-      <div className="mb-6 flex gap-4 items-center">
-        <select
-          value={selectedAlgorithm}
-          onChange={(e) => setSelectedAlgorithm(e.target.value)}
-          className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="bfs">Breadth-First Search</option>
-          <option value="dfs">Depth-First Search</option>
-          <option value='dijkstra' disabled={!isWeighted}>Dijkstra's Algorithm</option>
-        </select>
-        <button
-          onClick={startVisualization}
-          disabled={isAnimating || nodes.length === 0 || !startNode || (selectedAlgorithm === 'dijkstra' && !endNode)}
-          className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          
-          <Play size={20} /> Visualize
-        </button>
-      </div>
-
-      {isDrawingLine && (
-        <div className="mb-4 p-3 bg-yellow-100 text-yellow-800 rounded-md">
-          Click on two nodes to connect them with a line. {isWeighted && "You'll be prompted to enter the edge weight."} Click "Cancel Line" to exit line drawing mode.
+      
+      {awaitingWeight && (
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-4 rounded shadow-lg z-10">
+          <form onSubmit={handleWeightSubmit}>
+            <input
+              type="number"
+              name="weight"
+              placeholder="Enter weight"
+              className="mr-2 px-2 py-1 border rounded"
+              autoFocus
+            />
+            <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded">
+              Add Edge
+            </button>
+          </form>
         </div>
       )}
 
-      <div
-        ref={canvasRef}
-        className="relative w-full h-[600px] border-2 border-gray-200 rounded-lg bg-gray-50"
-        onDragOver={handleDragOver}
-        onDrop={handleDrop}
-        onMouseMove={handleCanvasMouseMove}
+      <svg
+        ref={svgRef}
+        className="flex-grow bg-white"
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
       >
-        <svg className="absolute top-0 left-0 w-full h-full pointer-events-none">
-          {edges.map((edge) => {
-            const fromNode = nodes.find(n => n.id === edge.from);
-            const toNode = nodes.find(n => n.id === edge.to);
-            if (!fromNode || !toNode) return null;
+        {/* Render edges and arrows */}
+        {edges.map(edge => {
+          const startNode = nodes.find(n => n.id === edge.start.id);
+          const endNode = nodes.find(n => n.id === edge.end.id);
+          if (!startNode || !endNode) return null;
+          
+          const { x: lineEndX, y: lineEndY } = calculateArrowPosition(startNode, endNode);
+          const { x: lineStartX, y: lineStartY } = calculateArrowPosition(endNode, startNode);
+          
+          const shouldShowArrow = isBidirectional ? edge.isForward : edge.isDirected;
+          
+          return (
+            <g key={edge.id}>
+              <line
+                x1={lineStartX}
+                y1={lineStartY}
+                x2={lineEndX}
+                y2={lineEndY}
+                stroke="black"
+                strokeWidth="2"
+              />
+              {shouldShowArrow && renderArrow(startNode, endNode)}
+              {edge.weight !== null && (
+                <text
+                  x={(startNode.x + endNode.x) / 2}
+                  y={(startNode.y + endNode.y) / 2 - 10}
+                  textAnchor="middle"
+                  fill="red"
+                >
+                  {edge.weight}
+                </text>
+              )}
+            </g>
+          );
+        })}
 
-            const midX = (fromNode.position.x + toNode.position.x) / 2 + 25;
-            const midY = (fromNode.position.y + toNode.position.y) / 2 + 25;
-
-            return (
-              <g key={edge.id}>
-                <line
-                  x1={fromNode.position.x + 25}
-                  y1={fromNode.position.y + 25}
-                  x2={toNode.position.x + 25}
-                  y2={toNode.position.y + 25}
-                  stroke={highlightedEdges.includes(edge.id) ? "#22c55e" : "#94a3b8"}
-                  strokeWidth="2"
-                />
-                {isWeighted && (
-                  <text
-                    x={midX}
-                    y={midY}
-                    textAnchor="middle"
-                    dy=".3em"
-                    fill="#4b5563"
-                    fontSize="12"
-                  >
-                    {edge.weight}
-                  </text>
-                )}
-              </g>
-            );
-          })}
-          {tempLine && (
-            <line
-              x1={tempLine.x1}
-              y1={tempLine.y1}
-              x2={tempLine.x2}
-              y2={tempLine.y2}
-              stroke="#94a3b8"
-              strokeWidth="2"
-              strokeDasharray="5,5"
+        {/* Render nodes */}
+        {nodes.map(node => (
+          <g key={node.id} onMouseDown={(e) => handleMouseDown(e, node)} onClick={() => handleNodeClick(node)}>
+            <circle
+              cx={node.x}
+              cy={node.y}
+              r="30"
+              fill={
+                node === startNode
+                  ? 'purple'
+                  : node === endNode
+                  ? '#00ff00'
+                  : 'gray'
+              }
+              className="cursor-move"
             />
-          )}
-        </svg>
-        {nodes.map((node) => (
-          <div
-            key={node.id}
-            draggable={!isDrawingLine}
-            onDragStart={(e) => handleDragStart(e, node.id)}
-            onClick={() => handleNodeClick(node.id)}
-            className={`absolute cursor-${isDrawingLine ? 'pointer' : 'move'} w-[50px] h-[50px] rounded-full 
-              flex items-center justify-center
-              ${highlightedNodes.includes(node.id) ? 'bg-green-500' : 
-                node.id === startNode ? 'bg-blue-500' :
-                node.id === endNode ? 'bg-purple-500' : 'bg-gray-400'}
-              ${isDrawingLine && lineStart === node.id ? 'ring-2 ring-yellow-400' : ''}
-              text-white font-semibold transition-colors`}
-            style={{
-              left: node.position.x,
-              top: node.position.y,
-            }}
-          >
-            {node.value}
-          </div>
+            <text
+              x={node.x}
+              y={node.y}
+              textAnchor="middle"
+              dy=".3em"
+              fill="white"
+              fontSize="14"
+            >
+              {node.name}
+            </text>
+          </g>
         ))}
-      </div>
+        
+        {/* Render temp line */}
+        {tempLine && (
+          <line
+            x1={tempLine.start.x}
+            y1={tempLine.start.y}
+            x2={tempLine.end.x}
+            y2={tempLine.end.y}
+            stroke="gray"
+            strokeWidth="2"
+            strokeDasharray="5,5"
+          />
+        )}
+      </svg>
     </div>
   );
 };
 
-export default Graph;
+export default GraphVisualization;
