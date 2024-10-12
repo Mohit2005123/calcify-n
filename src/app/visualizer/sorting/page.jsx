@@ -32,6 +32,7 @@ const SortingAlgo = () => {
     const [sorting, setSorting] = useState(false);
     const [showBars, setShowBars] = useState(true);
     const [inputArray, setInputArray] = useState(arrays.bubble.join(', '));
+    const [sortingSpeed, setSortingSpeed] = useState(50);
 
     useEffect(() => {
         const initialArray = inputArray.split(',').map(num => parseInt(num.trim(), 10));
@@ -55,7 +56,7 @@ const SortingAlgo = () => {
         setArrays(newArrays);
     };
 
-    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms * (100 - sortingSpeed) / 50));
 
     const startSort = async () => {
         setSorting(true);
@@ -142,6 +143,10 @@ const SortingAlgo = () => {
             }
             return [...prev, algorithm];
         });
+    };
+
+    const handleSpeedChange = (event) => {
+        setSortingSpeed(parseInt(event.target.value, 10));
     };
 
     const renderArrayVisualization = (algorithmKey) => {
@@ -238,6 +243,21 @@ const SortingAlgo = () => {
                     fontWeight: 'bold',
                     cursor: sorting ? 'not-allowed' : 'pointer'
                 }}>Reset Array</button>
+            </div>
+
+            <div style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <label htmlFor="speed-slider" style={{ fontWeight: 'bold' }}>Sorting Speed:</label>
+                <input
+                    id="speed-slider"
+                    type="range"
+                    min="1"
+                    max="100"
+                    value={sortingSpeed}
+                    onChange={handleSpeedChange}
+                    disabled={sorting}
+                    style={{ flex: 1 }}
+                />
+                <span>{sortingSpeed}%</span>
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
