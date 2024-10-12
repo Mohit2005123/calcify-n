@@ -56,7 +56,10 @@ const SortingAlgo = () => {
         setArrays(newArrays);
     };
 
-    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms * (100 - sortingSpeed) / 50));
+    const sleep = (ms) => {
+        const speed = Math.pow(10, (sortingSpeed - 50) / 25); // Logarithmic scale
+        return new Promise(resolve => setTimeout(resolve, ms / speed));
+    };
 
     const startSort = async () => {
         setSorting(true);
