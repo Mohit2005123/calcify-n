@@ -218,7 +218,6 @@ const SortingAlgo = () => {
             gap: '2rem',
         };
     };
-
     return (
         <div style={{ padding: '1rem', fontFamily: 'Arial, sans-serif' }}>
             <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem' }}>Algorithm Comparison Visualizer</h1>
@@ -237,15 +236,22 @@ const SortingAlgo = () => {
                         width: '100%'
                     }}
                 />
-                <button onClick={resetArrays} disabled={sorting} style={{
-                    padding: '0.5rem',
-                    border: 'none',
-                    borderRadius: '0.25rem',
-                    backgroundColor: '#4caf50',
-                    color: 'white',
-                    fontWeight: 'bold',
-                    cursor: sorting ? 'not-allowed' : 'pointer'
-                }}>Reset Array</button>
+                <button
+                    onClick={resetArrays}
+                    disabled={sorting}
+                    style={{
+                        padding: '0.5rem',
+                        border: 'none',
+                        borderRadius: '0.25rem',
+                        backgroundColor: '#4caf50',
+                        color: 'white',
+                        fontWeight: 'bold',
+                        cursor: sorting ? 'not-allowed' : 'pointer',
+                        width: '200px' // Adjust the width here
+                    }}>
+                    Reset Array
+                </button>
+
             </div>
 
             <div style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
@@ -298,18 +304,22 @@ const SortingAlgo = () => {
             </div>
 
             <div style={{ marginBottom: '1rem' }}>
-                <button onClick={startSort} disabled={sorting} style={{
-                    padding: '1rem',
-                    backgroundColor: '#f44336',
-                    color: 'white',
-                    fontWeight: 'bold',
-                    border: 'none',
-                    borderRadius: '0.25rem',
-                    cursor: sorting ? 'not-allowed' : 'pointer',
-                    width: '100%'
-                }}>
+                <button
+                    onClick={startSort}
+                    disabled={sorting}
+                    style={{
+                        padding: '1rem',
+                        backgroundColor: '#f44336',
+                        color: 'white',
+                        fontWeight: 'bold',
+                        border: 'none',
+                        borderRadius: '0.25rem',
+                        cursor: sorting ? 'not-allowed' : 'pointer',
+                        width: '200px' // Adjust the width here
+                    }}>
                     {sorting ? 'Sorting...' : 'Start Sorting'}
                 </button>
+
             </div>
 
             <div style={getGridStyle()}>
