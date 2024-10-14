@@ -1,6 +1,6 @@
 "use client"
 import { useState, useRef } from 'react';
-import { inorderTraversal, preorderTraversal, postorderTraversal } from '@/components/binarytree/traversalAlgo';
+import { inorderTraversal, preorderTraversal, postorderTraversal, levelOrderTraversal } from '@/components/binarytree/traversalAlgo';
 const BinaryTree = () => {
   const [nodes, setNodes] = useState([]);
   const [selectedNode, setSelectedNode] = useState(null);
@@ -222,6 +222,26 @@ const BinaryTree = () => {
     setLines(updatedLines);
   };
 
+  // Level order traversal function
+  // const levelOrderTraversal = (root, getLeftChild, getRightChild) => {
+  //   if (!root) return [];
+  //   const queue = [root];
+  //   const result = [];
+    
+  //   while (queue.length > 0) {
+  //     const node = queue.shift();
+  //     result.push(node);
+      
+  //     const leftChild = getLeftChild(node);
+  //     const rightChild = getRightChild(node);
+      
+  //     if (leftChild) queue.push(leftChild);
+  //     if (rightChild) queue.push(rightChild);
+  //   }
+    
+  //   return result;
+  // };
+
   return (
     <div className="w-full h-screen bg-gray-100 p-4">
       {/* Control Panel */}
@@ -268,6 +288,9 @@ const BinaryTree = () => {
         </button>
         <button onClick={() => visualizeTraversal(postorderTraversal)} className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md">
           Visualize Postorder
+        </button>
+        <button onClick={() => visualizeTraversal(levelOrderTraversal)} className="px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white rounded-md">
+          Visualize Level Order
         </button>
       </div>
 

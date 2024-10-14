@@ -24,3 +24,21 @@ export const inorderTraversal = (node, getLeftChild, getRightChild, visited = []
     visited.push(node);
     return visited;
   };
+   export const levelOrderTraversal = (root, getLeftChild, getRightChild) => {
+    if (!root) return [];
+    const queue = [root];
+    const result = [];
+    
+    while (queue.length > 0) {
+      const node = queue.shift();
+      result.push(node);
+      
+      const leftChild = getLeftChild(node);
+      const rightChild = getRightChild(node);
+      
+      if (leftChild) queue.push(leftChild);
+      if (rightChild) queue.push(rightChild);
+    }
+    
+    return result;
+  };
