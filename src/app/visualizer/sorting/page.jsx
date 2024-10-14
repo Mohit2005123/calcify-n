@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { bubbleSort } from '@/components/sortingAlgo/bubbleSort';
 import { quickSort } from '@/components/sortingAlgo/quickSort';
 import { insertionSort } from '@/components/sortingAlgo/insertionSort';
@@ -23,7 +23,6 @@ const AVAILABLE_ALGORITHMS = {
     radix: { name: 'Radix Sort', color: 'rgba(128, 0, 128, 0.8)', borderColor: '#800080' },
     bucket: { name: 'Bucket Sort', color: 'rgba(255, 105, 180, 0.8)', borderColor: '#ff69b4' }
 };
-
 const SortingAlgo = () => {
     const [selectedAlgorithms, setSelectedAlgorithms] = useState(['bubble']);
     const [arrays, setArrays] = useState(() => {
@@ -33,6 +32,8 @@ const SortingAlgo = () => {
     const [showBars, setShowBars] = useState(true);
     const [inputArray, setInputArray] = useState(arrays.bubble.join(', '));
     const [sortingSpeed, setSortingSpeed] = useState(50);
+    const [isPaused, setIsPaused] = useState(false);
+    const pauseRef = useRef(false);
 
     useEffect(() => {
         const initialArray = inputArray.split(',').map(num => parseInt(num.trim(), 10));
@@ -58,11 +59,22 @@ const SortingAlgo = () => {
 
     const sleep = (ms) => {
         const speed = Math.pow(10, (sortingSpeed - 50) / 25); // Logarithmic scale
-        return new Promise(resolve => setTimeout(resolve, ms / speed));
+        return new Promise(resolve => {
+            const checkPause = () => {
+                if (pauseRef.current) {
+                    setTimeout(checkPause, 100);
+                } else {
+                    setTimeout(resolve, ms / speed);
+                }
+            };
+            checkPause();
+        });
     };
 
     const startSort = async () => {
         setSorting(true);
+        setIsPaused(false);
+        pauseRef.current = false;
         try {
             await Promise.all(selectedAlgorithms.map(algo => sortArray(algo)));
         } catch (error) {
@@ -150,6 +162,11 @@ const SortingAlgo = () => {
 
     const handleSpeedChange = (event) => {
         setSortingSpeed(parseInt(event.target.value, 10));
+    };
+
+    const togglePause = () => {
+        setIsPaused(!isPaused);
+        pauseRef.current = !pauseRef.current;
     };
 
     const renderArrayVisualization = (algorithmKey) => {
@@ -303,10 +320,10 @@ const SortingAlgo = () => {
                 </button>
             </div>
 
-            <div style={{ marginBottom: '1rem' }}>
+            <div style={{ marginBottom: '1rem', display: 'flex', gap: '1rem' }}>
                 <button
                     onClick={startSort}
-                    disabled={sorting}
+                    disabled={sorting && !isPaused}
                     style={{
                         padding: '1rem',
                         backgroundColor: '#f44336',
@@ -314,12 +331,28 @@ const SortingAlgo = () => {
                         fontWeight: 'bold',
                         border: 'none',
                         borderRadius: '0.25rem',
-                        cursor: sorting ? 'not-allowed' : 'pointer',
-                        width: '200px' // Adjust the width here
+                        cursor: (sorting && !isPaused) ? 'not-allowed' : 'pointer',
+                        width: '200px'
                     }}>
-                    {sorting ? 'Sorting...' : 'Start Sorting'}
+                    {sorting ? (isPaused ? 'Resume Sorting' : 'Sorting...') : 'Start Sorting'}
                 </button>
 
+                {sorting && (
+                    <button
+                        onClick={togglePause}
+                        style={{
+                            padding: '1rem',
+                            backgroundColor: '#4caf50',
+                            color: 'white',
+                            fontWeight: 'bold',
+                            border: 'none',
+                            borderRadius: '0.25rem',
+                            cursor: 'pointer',
+                            width: '200px'
+                        }}>
+                        {isPaused ? 'Resume' : 'Pause'}
+                    </button>
+                )}
             </div>
 
             <div style={getGridStyle()}>

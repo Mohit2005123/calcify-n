@@ -221,27 +221,6 @@ const BinaryTree = () => {
 
     setLines(updatedLines);
   };
-
-  // Level order traversal function
-  // const levelOrderTraversal = (root, getLeftChild, getRightChild) => {
-  //   if (!root) return [];
-  //   const queue = [root];
-  //   const result = [];
-    
-  //   while (queue.length > 0) {
-  //     const node = queue.shift();
-  //     result.push(node);
-      
-  //     const leftChild = getLeftChild(node);
-  //     const rightChild = getRightChild(node);
-      
-  //     if (leftChild) queue.push(leftChild);
-  //     if (rightChild) queue.push(rightChild);
-  //   }
-    
-  //   return result;
-  // };
-
   return (
     <div className="w-full h-screen bg-gray-100 p-4">
       {/* Control Panel */}
