@@ -15,10 +15,10 @@ const BinaryTree = () => {
   // Visualize traversal by highlighting nodes in sequence
   const visualizeTraversal = (traversalFunc) => {
     if (!nodes.length) return;
-
+    
     const rootNode = nodes.find(node => node.parent === null);
     const traversalOrder = traversalFunc(rootNode, getLeftChild, getRightChild);
-    
+
     traversalOrder.forEach((node, index) => {
       setTimeout(() => setHighlightedNode(node.id), index * 1000);
     });

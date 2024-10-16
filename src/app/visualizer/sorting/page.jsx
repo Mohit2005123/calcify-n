@@ -10,7 +10,6 @@ import { shellSort } from '@/components/sortingAlgo/shellSort';
 import { timSort } from '@/components/sortingAlgo/timSort';
 import { radixSort } from '@/components/sortingAlgo/radixSort';
 import { bucketSort } from '@/components/sortingAlgo/bucketSort';
-
 const AVAILABLE_ALGORITHMS = {
     bubble: { name: 'Bubble Sort', color: 'rgba(59, 130, 246, 0.8)', borderColor: '#3b82f6' },
     quick: { name: 'Quick Sort', color: 'rgba(236, 72, 153, 0.8)', borderColor: '#ec4899' },
@@ -22,6 +21,18 @@ const AVAILABLE_ALGORITHMS = {
     tim: { name: 'Tim Sort', color: 'rgba(255, 193, 7, 0.8)', borderColor: '#ffc107' },
     radix: { name: 'Radix Sort', color: 'rgba(128, 0, 128, 0.8)', borderColor: '#800080' },
     bucket: { name: 'Bucket Sort', color: 'rgba(255, 105, 180, 0.8)', borderColor: '#ff69b4' }
+};
+const ALGORITHM_COMPLEXITY = {
+    bubble: { time: 'O(n^2)', space: 'O(1)' },
+    quick: { time: 'O(n log n)', space: 'O(log n)' },
+    insertion: { time: 'O(n^2)', space: 'O(1)' },
+    selection: { time: 'O(n^2)', space: 'O(1)' },
+    merge: { time: 'O(n log n)', space: 'O(n)' },
+    heap: { time: 'O(n log n)', space: 'O(1)' },
+    shell: { time: 'O(n^2)', space: 'O(1)' },
+    tim: { time: 'O(n log n)', space: 'O(n)' },
+    radix: { time: 'O(nk)', space: 'O(n + k)' },
+    bucket: { time: 'O(n + k)', space: 'O(n)' }
 };
 const SortingAlgo = () => {
     const [selectedAlgorithms, setSelectedAlgorithms] = useState(['bubble']);
@@ -174,55 +185,59 @@ const SortingAlgo = () => {
         if (!currentArray) return null;
 
         const algorithmInfo = AVAILABLE_ALGORITHMS[algorithmKey];
-
-        if (showBars) {
-            return (
-                <div style={{
-                    display: 'flex',
-                    height: '10rem',
-                    alignItems: 'flex-end',
-                }}>
-                    {currentArray.map((value, index) => (
-                        <div key={index} style={{
-                            flex: 1,
-                            backgroundColor: algorithmInfo.color,
-                            marginRight: index < currentArray.length - 1 ? '2px' : '0',
-                            height: `${value + 5}%`,
-                            display: 'flex',
-                            alignItems: 'flex-start',
-                            justifyContent: 'center',
-                            color: 'white',
-                            fontWeight: 'bold'
-                        }}>
-                            {value}
-                        </div>
-                    ))}
-                </div>
-            );
-        }
+        const complexityInfo = ALGORITHM_COMPLEXITY[algorithmKey];
 
         return (
-            <div style={{
-                display: 'flex',
-                border: `2px solid ${algorithmInfo.borderColor}`,
-                borderRadius: '0.5rem',
-                overflow: 'hidden',
-                height: '4rem',
-            }}>
-                {currentArray.map((value, index) => (
-                    <div key={index} style={{
-                        flex: 1,
+            <div>
+                <h2 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>{algorithmInfo.name}</h2>
+                <p>Time Complexity: {complexityInfo.time}</p>
+                <p>Space Complexity: {complexityInfo.space}</p>
+                {showBars ? (
+                    <div style={{
                         display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        borderRight: index < currentArray.length - 1 ? `1px solid ${algorithmInfo.borderColor}` : 'none',
-                        backgroundColor: algorithmInfo.color.replace('0.8', value / 100),
-                        color: value > 50 ? 'white' : 'black',
-                        fontWeight: 'bold'
+                        height: '10rem',
+                        alignItems: 'flex-end',
                     }}>
-                        {value}
+                        {currentArray.map((value, index) => (
+                            <div key={index} style={{
+                                flex: 1,
+                                backgroundColor: algorithmInfo.color,
+                                marginRight: index < currentArray.length - 1 ? '2px' : '0',
+                                height: `${value + 5}%`,
+                                display: 'flex',
+                                alignItems: 'flex-start',
+                                justifyContent: 'center',
+                                color: 'white',
+                                fontWeight: 'bold'
+                            }}>
+                                {value}
+                            </div>
+                        ))}
                     </div>
-                ))}
+                ) : (
+                    <div style={{
+                        display: 'flex',
+                        border: `2px solid ${algorithmInfo.borderColor}`,
+                        borderRadius: '0.5rem',
+                        overflow: 'hidden',
+                        height: '4rem',
+                    }}>
+                        {currentArray.map((value, index) => (
+                            <div key={index} style={{
+                                flex: 1,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                borderRight: index < currentArray.length - 1 ? `1px solid ${algorithmInfo.borderColor}` : 'none',
+                                backgroundColor: algorithmInfo.color.replace('0.8', value / 100),
+                                color: value > 50 ? 'white' : 'black',
+                                fontWeight: 'bold'
+                            }}>
+                                {value}
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
         );
     };
@@ -362,7 +377,6 @@ const SortingAlgo = () => {
                         padding: '1rem',
                         borderRadius: '0.25rem'
                     }}>
-                        <h2 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>{AVAILABLE_ALGORITHMS[algorithmKey].name}</h2>
                         {renderArrayVisualization(algorithmKey)}
                     </div>
                 ))}

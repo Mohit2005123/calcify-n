@@ -14,12 +14,12 @@ export const quickSort = async (array, low, high, setArray, sleep) => {
         i++;
         [arr[i], arr[j]] = [arr[j], arr[i]];
         setArray([...arr]);
-        await sleep(200);
+        await sleep(100);
       }
     }
     [arr[i + 1], arr[high]] = [arr[high], arr[i + 1]];
     setArray([...arr]);
-    await sleep(200);
+    await sleep(100);
     return i + 1;
   };
   

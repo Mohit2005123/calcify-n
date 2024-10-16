@@ -8,7 +8,7 @@ export const bubbleSort = async (array, setArray, sleep) => {
         if (arr[j] > arr[j + 1]) {
           [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
           setArray([...arr]);
-          await sleep(200);
+          await sleep(100);
         }
       }
     }
