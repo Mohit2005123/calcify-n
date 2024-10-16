@@ -322,6 +322,72 @@ const findNodePosition = (value) => {
     return current || node;
   };
 
+  const generateRandomBST = () => {
+    const numberOfNodes = Math.floor(Math.random() * 10) + 5; // Generate 5 to 14 nodes
+    const values = new Set();
+    
+    // Generate unique random values
+    while (values.size < numberOfNodes) {
+      values.add(Math.floor(Math.random() * 100) + 1); // Random values between 1 and 100
+    }
+
+    // Clear existing tree
+    setNodes([]);
+    setLines([]);
+
+    // Add nodes in order
+    const sortedValues = Array.from(values).sort((a, b) => a - b);
+    const rootValue = sortedValues[Math.floor(sortedValues.length / 2)];
+    
+    const addNodeRecursively = (value, x, y, parent = null, isLeft = false) => {
+      const newNode = {
+        id: Date.now() + Math.random(), // Ensure unique ID
+        value: value.toString(),
+        x,
+        y,
+        parent: parent ? parent.id : null,
+        isLeft
+      };
+
+      setNodes(prevNodes => [...prevNodes, newNode]);
+
+      if (parent) {
+        const newLine = {
+          id: `${parent.id}-${newNode.id}`,
+          startNode: parent.id,
+          endNode: newNode.id,
+          startX: parent.x,
+          startY: parent.y,
+          endX: x,
+          endY: y,
+          ...calculateLineMetrics(parent.x, parent.y, x, y)
+        };
+        setLines(prevLines => [...prevLines, newLine]);
+      }
+
+      return newNode;
+    };
+
+    const buildTree = (values, x, y, parent = null, isLeft = false) => {
+      if (values.length === 0) return;
+
+      const mid = Math.floor(values.length / 2);
+      const node = addNodeRecursively(values[mid], x, y, parent, isLeft);
+
+      const leftValues = values.slice(0, mid);
+      const rightValues = values.slice(mid + 1);
+
+      if (leftValues.length > 0) {
+        buildTree(leftValues, x - 100, y + 100, node, true);
+      }
+      if (rightValues.length > 0) {
+        buildTree(rightValues, x + 100, y + 100, node, false);
+      }
+    };
+
+    buildTree(sortedValues, svgRef.current ? svgRef.current.clientWidth / 2 : 400, 50);
+  };
+
   return (
     <div className="w-full h-screen bg-gray-100 p-4">
       {/* Control Panel */}
@@ -375,6 +441,12 @@ const findNodePosition = (value) => {
           className="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-md"
         >
           Visualize Level Order Traversal
+        </button>
+        <button
+          onClick={generateRandomBST}
+          className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-md"
+        >
+          Generate Random BST
         </button>
       </div>
 
