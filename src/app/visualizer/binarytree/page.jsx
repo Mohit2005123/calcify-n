@@ -10,8 +10,8 @@ const BinaryTree = () => {
   const [draggingNode, setDraggingNode] = useState(null);
   const [highlightedNode, setHighlightedNode] = useState(null); 
   const svgRef = useRef(null);
-  const getLeftChild = (node) => nodes.find(n => n.parent === node.id && n.isLeft);
-  const getRightChild = (node) => nodes.find(n => n.parent === node.id && !n.isLeft);
+  const getLeftChild = (node) => nodes.find(n => n.id === node.left);
+  const getRightChild = (node) => nodes.find(n => n.id === node.right);
   // Visualize traversal by highlighting nodes in sequence
   const visualizeTraversal = (traversalFunc) => {
     if (!nodes.length) return;
@@ -221,6 +221,74 @@ const BinaryTree = () => {
 
     setLines(updatedLines);
   };
+
+  const generateRandomTree = () => {
+    const newNodes = [];
+    const newLines = [];
+    const nodeCount = Math.floor(Math.random() * 10); // Random number of nodes between 5 and 14
+
+    // Create root node
+    const rootNode = {
+      id: Date.now(),
+      value: Math.floor(Math.random() * 100).toString(),
+      x: svgRef.current ? svgRef.current.clientWidth / 2 : 400,
+      y: 50,
+      parent: null,
+      left: null,
+      right: null
+    };
+    newNodes.push(rootNode);
+
+    for (let i = 1; i < nodeCount; i++) {
+      const value = Math.floor(Math.random() * 100).toString();
+      let parentNode = newNodes[Math.floor(Math.random() * newNodes.length)];
+      
+      while (parentNode.left && parentNode.right) {
+        parentNode = newNodes[Math.floor(Math.random() * newNodes.length)];
+      }
+
+      const isLeft = !parentNode.left;
+      const newNode = {
+        id: Date.now() + i,
+        value: value,
+        x: isLeft ? parentNode.x - 150 : parentNode.x + 150,
+        y: parentNode.y + 100,
+        parent: parentNode.id,
+        left: null,
+        right: null
+      };
+
+      if (isLeft) {
+        parentNode.left = newNode.id;
+      } else {
+        parentNode.right = newNode.id;
+      }
+
+      newNodes.push(newNode);
+
+      const { length, angle } = calculateLineMetrics(
+        parentNode.x,
+        parentNode.y,
+        newNode.x,
+        newNode.y
+      );
+
+      newLines.push({
+        id: `${parentNode.id}-${newNode.id}`,
+        startNode: parentNode.id,
+        endNode: newNode.id,
+        startX: parentNode.x,
+        startY: parentNode.y,
+        endX: newNode.x,
+        endY: newNode.y,
+        angle,
+        length
+      });
+    }
+
+    setNodes(newNodes);
+    setLines(newLines);
+  };
   return (
     <div className="w-full h-screen bg-gray-100 p-4">
       {/* Control Panel */}
@@ -258,6 +326,12 @@ const BinaryTree = () => {
             </button>
           </>
         )}
+        <button
+          onClick={generateRandomTree}
+          className="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-md"
+        >
+          Generate Random Tree
+        </button>
         {/* Algorithm Visualization Buttons */}
         <button onClick={() => visualizeTraversal(inorderTraversal)} className="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-md">
           Visualize Inorder
