@@ -450,6 +450,24 @@ const findNodePosition = (value) => {
     return current || node;
   };
 
+  const generateRandomAVLTree = () => {
+    const numberOfNodes = Math.floor(Math.random() * 10) + 5; // Random number between 5 and 14
+    let avlRoot = null;
+    const uniqueValues = new Set();
+
+    while (uniqueValues.size < numberOfNodes) {
+      const randomValue = Math.floor(Math.random() * 100) + 1; // Random number between 1 and 100
+      if (!uniqueValues.has(randomValue)) {
+        uniqueValues.add(randomValue);
+        avlRoot = insertNode(avlRoot, randomValue);
+      }
+    }
+
+    const { nodes: newNodes, lines: newLines } = createVisualTree(avlRoot);
+    setNodes(newNodes);
+    setLines(newLines);
+  };
+
   return (
     <div className="w-full h-screen bg-gray-100 p-4">
       {/* Control Panel */}
@@ -503,6 +521,12 @@ const findNodePosition = (value) => {
           className="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-md"
         >
           Visualize Level-order Traversal
+        </button>
+        <button
+          onClick={generateRandomAVLTree}
+          className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-md"
+        >
+          Generate Random AVL Tree
         </button>
       </div>
 
