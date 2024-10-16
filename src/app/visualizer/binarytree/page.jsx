@@ -225,8 +225,7 @@ const BinaryTree = () => {
   const generateRandomTree = () => {
     const newNodes = [];
     const newLines = [];
-    const nodeCount = Math.floor(Math.random() * 10); // Random number of nodes between 5 and 14
-
+    const nodeCount = Math.floor(Math.random() * 6) + 5; // Random number of nodes between 5 and 10
     // Create root node
     const rootNode = {
       id: Date.now(),

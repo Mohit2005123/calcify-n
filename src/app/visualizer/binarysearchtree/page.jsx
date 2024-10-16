@@ -1,6 +1,6 @@
 "use client"
 import { useState, useRef, useEffect } from 'react';
-import { inorderTraversal, preorderTraversal, postorderTraversal } from '@/components/binarysearchtree/traversalAlgo';
+import { inorderTraversal, preorderTraversal, postorderTraversal, levelOrderTraversal } from '@/components/binarysearchtree/traversalAlgo';
 const BinarySearchTree = () => {
   const [nodes, setNodes] = useState([]);
   const [nodeValue, setNodeValue] = useState('');
@@ -212,6 +212,8 @@ const findNodePosition = (value) => {
         order = preorderTraversal(root.id, nodes);
       } else if (type === 'postorder') {
         order = postorderTraversal(root.id, nodes);
+      } else if (type === 'levelorder') {
+        order = levelOrderTraversal(root.id, nodes);
       }
     }
     setTraversalOrder(order);
@@ -367,6 +369,12 @@ const findNodePosition = (value) => {
           className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-md"
         >
           Visualize Postorder Traversal
+        </button>
+        <button
+          onClick={() => startTraversal('levelorder')}
+          className="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-md"
+        >
+          Visualize Level Order Traversal
         </button>
       </div>
 

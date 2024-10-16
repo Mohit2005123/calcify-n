@@ -52,3 +52,21 @@ export const inorderTraversal = (nodeId, nodes, order = []) => {
   
     return order;
   };
+
+export const levelOrderTraversal = (rootId, nodes) => {
+  const order = [];
+  const queue = [rootId];
+
+  while (queue.length > 0) {
+    const currentId = queue.shift();
+    order.push(currentId);
+
+    const leftChild = nodes.find(n => n.parent === currentId && n.isLeft);
+    const rightChild = nodes.find(n => n.parent === currentId && !n.isLeft);
+
+    if (leftChild) queue.push(leftChild.id);
+    if (rightChild) queue.push(rightChild.id);
+  }
+
+  return order;
+};
