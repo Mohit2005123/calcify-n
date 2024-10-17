@@ -10,6 +10,7 @@ const BinarySearchTree = () => {
   const [currentTraversalIndex, setCurrentTraversalIndex] = useState(null);
   const [deleteValue, setDeleteValue] = useState('');
   const svgRef = useRef(null);
+  const [animationSpeed, setAnimationSpeed] = useState(1000); // Default 1000ms (1 second)
 
   // Helper functions
   const findParentNode = (nodeId) => {
@@ -225,11 +226,11 @@ const findNodePosition = (value) => {
     if (currentTraversalIndex !== null && currentTraversalIndex < traversalOrder.length) {
       const timeout = setTimeout(() => {
         setCurrentTraversalIndex((index) => index + 1);
-      }, 1000); // 1-second delay between each step
+      }, animationSpeed); // Use animationSpeed instead of fixed 1000ms
 
       return () => clearTimeout(timeout);
     }
-  }, [currentTraversalIndex, traversalOrder]);
+  }, [currentTraversalIndex, traversalOrder, animationSpeed]);
   const deleteNode = () => {
     if (!deleteValue.trim() || isNaN(parseInt(deleteValue))) {
       alert("Please enter a valid number to delete");
@@ -391,67 +392,87 @@ const findNodePosition = (value) => {
   return (
     <div className="w-full h-screen bg-gray-100 p-4">
       {/* Control Panel */}
-      <div className="mb-4 flex gap-4 items-center bg-white p-4 rounded-lg shadow">
-        <input
-          type="number"
-          value={nodeValue}
-          onChange={(e) => setNodeValue(e.target.value)}
-          placeholder="Enter number"
-          className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <button
-          onClick={addNode}
-          className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md"
-        >
-          Add Node
-        </button>
-        <input
-          type="number"
-          value={deleteValue}
-          onChange={(e) => setDeleteValue(e.target.value)}
-          placeholder="Enter number to delete"
-          className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-        />
-        <button
-          onClick={deleteNode}
-          className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md"
-        >
-          Delete Node
-        </button>
-        <button
-          onClick={() => startTraversal('inorder')}
-          className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md"
-        >
-          Visualize Inorder Traversal
-        </button>
-        <button
-          onClick={() => startTraversal('preorder')}
-          className="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-md"
-        >
-          Visualize Preorder Traversal
-        </button>
-        <button
-          onClick={() => startTraversal('postorder')}
-          className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-md"
-        >
-          Visualize Postorder Traversal
-        </button>
-        <button
-          onClick={() => startTraversal('levelorder')}
-          className="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-md"
-        >
-          Visualize Level Order Traversal
-        </button>
-        <button
-          onClick={generateRandomBST}
-          className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-md"
-        >
-          Generate Random BST
-        </button>
+      <div className="mb-4 bg-white p-4 rounded-lg shadow">
+        <div className="flex flex-wrap gap-4 items-center mb-4">
+          <input
+            type="number"
+            value={nodeValue}
+            onChange={(e) => setNodeValue(e.target.value)}
+            placeholder="Enter number"
+            className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <button
+            onClick={addNode}
+            className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md"
+          >
+            Add Node
+          </button>
+          <input
+            type="number"
+            value={deleteValue}
+            onChange={(e) => setDeleteValue(e.target.value)}
+            placeholder="Enter number to delete"
+            className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+          />
+          <button
+            onClick={deleteNode}
+            className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md"
+          >
+            Delete Node
+          </button>
+          <button
+            onClick={generateRandomBST}
+            className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-md"
+          >
+            Generate Random BST
+          </button>
+        </div>
+        <div className="flex flex-wrap gap-4 items-center mb-4">
+          <button
+            onClick={() => startTraversal('inorder')}
+            className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md"
+          >
+            Visualize Inorder Traversal
+          </button>
+          <button
+            onClick={() => startTraversal('preorder')}
+            className="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-md"
+          >
+            Visualize Preorder Traversal
+          </button>
+          <button
+            onClick={() => startTraversal('postorder')}
+            className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-md"
+          >
+            Visualize Postorder Traversal
+          </button>
+          <button
+            onClick={() => startTraversal('levelorder')}
+            className="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-md"
+          >
+            Visualize Level Order Traversal
+          </button>
+        </div>
+        <div className="flex items-center">
+          <label htmlFor="speed-slider" className="mr-2 text-sm font-medium text-gray-700">
+            Animation Speed:
+          </label>
+          <input
+            id="speed-slider"
+            type="range"
+            min="100"
+            max="2000"
+            step="100"
+            value={animationSpeed}
+            onChange={(e) => setAnimationSpeed(Number(e.target.value))}
+            className="w-64"
+          />
+          <span className="ml-2 text-sm text-gray-600">{animationSpeed}ms</span>
+        </div>
       </div>
 
       {/* Tree Visualization */}
-      <div className="bg-white rounded-lg shadow p-4 h-[calc(100vh-120px)]">
+      <div className="bg-white rounded-lg shadow p-4 h-[calc(100vh-220px)]">
         <svg
           ref={svgRef}
           className="w-full h-full"

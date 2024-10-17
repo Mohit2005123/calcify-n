@@ -1,5 +1,5 @@
 "use client"
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { inorderTraversal, preorderTraversal, postorderTraversal, levelOrderTraversal } from '@/components/binarytree/traversalAlgo';
 const BinaryTree = () => {
   const [nodes, setNodes] = useState([]);
@@ -10,22 +10,23 @@ const BinaryTree = () => {
   const [draggingNode, setDraggingNode] = useState(null);
   const [highlightedNode, setHighlightedNode] = useState(null); 
   const svgRef = useRef(null);
+  const [visualizationSpeed, setVisualizationSpeed] = useState(1000); // Default speed: 1000ms
   const getLeftChild = (node) => nodes.find(n => n.id === node.left);
   const getRightChild = (node) => nodes.find(n => n.id === node.right);
   // Visualize traversal by highlighting nodes in sequence
-  const visualizeTraversal = (traversalFunc) => {
+  const visualizeTraversal = useCallback((traversalFunc) => {
     if (!nodes.length) return;
     
     const rootNode = nodes.find(node => node.parent === null);
     const traversalOrder = traversalFunc(rootNode, getLeftChild, getRightChild);
 
     traversalOrder.forEach((node, index) => {
-      setTimeout(() => setHighlightedNode(node.id), index * 1000);
+      setTimeout(() => setHighlightedNode(node.id), index * visualizationSpeed);
     });
 
     // Reset highlight after traversal completes
-    setTimeout(() => setHighlightedNode(null), traversalOrder.length * 1000);
-  };
+    setTimeout(() => setHighlightedNode(null), traversalOrder.length * visualizationSpeed);
+  }, [nodes, visualizationSpeed, getLeftChild, getRightChild]);
   // Helper to find parent node
   const findParentNode = (nodeId) => {
     const node = nodes.find(n => n.id === nodeId);
@@ -344,6 +345,21 @@ const BinaryTree = () => {
         <button onClick={() => visualizeTraversal(levelOrderTraversal)} className="px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white rounded-md">
           Visualize Level Order
         </button>
+        {/* Add this slider control */}
+        <div className="flex items-center">
+          <label htmlFor="speed-slider" className="mr-2">Speed:</label>
+          <input
+            id="speed-slider"
+            type="range"
+            min="100"
+            max="2000"
+            step="100"
+            value={visualizationSpeed}
+            onChange={(e) => setVisualizationSpeed(Number(e.target.value))}
+            className="w-40"
+          />
+          <span className="ml-2">{visualizationSpeed}ms</span>
+        </div>
       </div>
 
       {/* Tree Visualization */}
