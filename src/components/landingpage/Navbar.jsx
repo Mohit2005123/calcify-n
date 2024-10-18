@@ -43,14 +43,8 @@ const Navbar = () => {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-2">
-              <div className="relative w-8 h-8">
-                <div className="absolute inset-0 bg-indigo-600 rounded-lg transform rotate-6"></div>
-                <div className="absolute inset-0 bg-indigo-500 rounded-lg transform -rotate-3"></div>
-                <span className="relative flex items-center justify-center h-full text-white font-bold">C</span>
-              </div>
-              <span className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-indigo-400 bg-clip-text text-transparent">
-                Calcify
-              </span>
+              {/* Logo Component */}
+              <Logo />
             </Link>
 
             {/* Desktop Navigation */}
@@ -87,6 +81,7 @@ const Navbar = () => {
               size="icon"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="relative inline-flex items-center justify-center rounded-md p-2 text-gray-700"
+              aria-expanded={mobileMenuOpen}
             >
               <span className="sr-only">Open main menu</span>
               {mobileMenuOpen ? (
@@ -102,7 +97,7 @@ const Navbar = () => {
       {/* Mobile Menu */}
       {mobileMenuOpen && (
         <div className="lg:hidden">
-          <div className="fixed inset-0 z-50 bg-white">
+          <div className="fixed inset-0 z-50 bg-white transition-opacity duration-300">
             <div className="flex flex-col h-full">
               <div className="flex items-center justify-between px-4 h-16 border-b border-gray-200">
                 <Link href="/" className="flex items-center space-x-2">
@@ -142,5 +137,14 @@ const Navbar = () => {
     </nav>
   )
 }
+
+// Example of a Logo component
+const Logo = () => (
+  <div className="relative w-8 h-8">
+    <div className="absolute inset-0 bg-indigo-600 rounded-lg transform rotate-6"></div>
+    <div className="absolute inset-0 bg-indigo-500 rounded-lg transform -rotate-3"></div>
+    <span className="relative flex items-center justify-center h-full text-white font-bold">C</span>
+  </div>
+)
 
 export default Navbar
