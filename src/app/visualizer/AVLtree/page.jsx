@@ -366,89 +366,102 @@ const findNodePosition = (value) => {
     }
 
     const valueToDelete = parseInt(deleteValue);
-    const nodeToDelete = nodes.find(node => parseInt(node.value) === valueToDelete);
 
-    if (!nodeToDelete) {
-      alert("Node not found in the tree");
-      return;
+    // Build logical AVL tree from current visual representation
+    let avlRoot = null;
+    const sortedNodes = [...nodes].sort((a, b) => parseInt(a.value) - parseInt(b.value));
+    sortedNodes.forEach(node => {
+      avlRoot = insertNode(avlRoot, parseInt(node.value));
+    });
+
+    // Delete node and rebalance
+    avlRoot = deleteNodeFromAVL(avlRoot, valueToDelete);
+
+    if (!avlRoot) {
+      setNodes([]);
+      setLines([]);
+    } else {
+      // Convert balanced AVL tree back to visual representation
+      const { nodes: newNodes, lines: newLines } = createVisualTree(avlRoot);
+      setNodes(newNodes);
+      setLines(newLines);
     }
 
-    let updatedNodes = [...nodes];
-    let updatedLines = [...lines];
-
-    // Case 1: Leaf node
-    if (!updatedNodes.some(n => n.parent === nodeToDelete.id)) {
-      updatedNodes = updatedNodes.filter(n => n.id !== nodeToDelete.id);
-      updatedLines = updatedLines.filter(l => l.endNode !== nodeToDelete.id);
-    }
-    // Case 2: Node with one child
-    else if (updatedNodes.filter(n => n.parent === nodeToDelete.id).length === 1) {
-      const childNode = updatedNodes.find(n => n.parent === nodeToDelete.id);
-      const parentNode = updatedNodes.find(n => n.id === nodeToDelete.parent);
-      
-      childNode.parent = parentNode ? parentNode.id : null;
-      childNode.isLeft = parentNode ? valueToDelete < parseInt(parentNode.value) : false;
-      
-      updatedNodes = updatedNodes.filter(n => n.id !== nodeToDelete.id);
-      updatedLines = updatedLines.filter(l => l.startNode !== nodeToDelete.id && l.endNode !== nodeToDelete.id);
-      
-      if (parentNode) {
-        updatedLines.push({
-          id: `${parentNode.id}-${childNode.id}`,
-          startNode: parentNode.id,
-          endNode: childNode.id,
-          startX: parentNode.x,
-          startY: parentNode.y,
-          endX: childNode.x,
-          endY: childNode.y,
-          ...calculateLineMetrics(parentNode.x, parentNode.y, childNode.x, childNode.y)
-        });
-      }
-    }
-    // Case 3: Node with two children
-    else {
-      const successorNode = findInorderSuccessor(nodeToDelete.id, updatedNodes);
-      nodeToDelete.value = successorNode.value;
-      
-      // Now remove the successor (which is guaranteed to have at most one child)
-      const successorChild = updatedNodes.find(n => n.parent === successorNode.id);
-      if (successorChild) {
-        successorChild.parent = successorNode.parent;
-        successorChild.isLeft = successorNode.isLeft;
-      }
-      
-      updatedNodes = updatedNodes.filter(n => n.id !== successorNode.id);
-      updatedLines = updatedLines.filter(l => l.startNode !== successorNode.id && l.endNode !== successorNode.id);
-      
-      if (successorChild) {
-        const successorParent = updatedNodes.find(n => n.id === successorNode.parent);
-        updatedLines.push({
-          id: `${successorParent.id}-${successorChild.id}`,
-          startNode: successorParent.id,
-          endNode: successorChild.id,
-          startX: successorParent.x,
-          startY: successorParent.y,
-          endX: successorChild.x,
-          endY: successorChild.y,
-          ...calculateLineMetrics(successorParent.x, successorParent.y, successorChild.x, successorChild.y)
-        });
-      }
-    }
-
-    setNodes(updatedNodes);
-    setLines(updatedLines);
     setDeleteValue('');
   };
 
-  const findInorderSuccessor = (nodeId, nodes) => {
-    const node = nodes.find(n => n.id === nodeId);
-    let current = nodes.find(n => n.parent === nodeId && !n.isLeft);
-    
-    while (current && nodes.some(n => n.parent === current.id && n.isLeft)) {
-      current = nodes.find(n => n.parent === current.id && n.isLeft);
+  // Helper function to delete a node from AVL tree
+  const deleteNodeFromAVL = (root, value) => {
+    if (!root) return root;
+
+    // Perform standard BST delete
+    if (value < root.value) {
+      root.left = deleteNodeFromAVL(root.left, value);
+    } else if (value > root.value) {
+      root.right = deleteNodeFromAVL(root.right, value);
+    } else {
+      // Node to delete found
+
+      // Node with only one child or no child
+      if (!root.left || !root.right) {
+        const temp = root.left ? root.left : root.right;
+        if (!temp) {
+          // No child case
+          root = null;
+        } else {
+          // One child case
+          root = temp;
+        }
+      } else {
+        // Node with two children
+        const temp = findMinNode(root.right);
+        root.value = temp.value;
+        root.right = deleteNodeFromAVL(root.right, temp.value);
+      }
     }
-    
-    return current || node;
+
+    // If the tree had only one node, return
+    if (!root) return root;
+
+    // Update height of the current node
+    root.height = Math.max(getHeight(root.left), getHeight(root.right)) + 1;
+
+    // Get the balance factor
+    const balance = getBalanceFactor(root);
+
+    // Rebalance if needed
+    // Left Left Case
+    if (balance > 1 && getBalanceFactor(root.left) >= 0) {
+      return rightRotate(root);
+    }
+
+    // Left Right Case
+    if (balance > 1 && getBalanceFactor(root.left) < 0) {
+      root.left = leftRotate(root.left);
+      return rightRotate(root);
+    }
+
+    // Right Right Case
+    if (balance < -1 && getBalanceFactor(root.right) <= 0) {
+      return leftRotate(root);
+    }
+
+    // Right Left Case
+    if (balance < -1 && getBalanceFactor(root.right) > 0) {
+      root.right = rightRotate(root.right);
+      return leftRotate(root);
+    }
+
+    return root;
+  };
+
+  // Helper function to find the node with minimum value
+  const findMinNode = (node) => {
+    let current = node;
+    while (current.left) {
+      current = current.left;
+    }
+    return current;
   };
 
   const generateRandomAVLTree = () => {

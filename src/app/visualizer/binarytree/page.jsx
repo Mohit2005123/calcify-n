@@ -51,7 +51,6 @@ const BinaryTree = () => {
   };
 
   // Add a new node
-  // Add a new node
   const addNode = (position) => {
     if (!nodeValue.trim()) return;
 
