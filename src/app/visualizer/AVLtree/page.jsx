@@ -21,6 +21,7 @@ const AVLtree = () => {
   const [deleteValue, setDeleteValue] = useState('');
   const svgRef = useRef(null);
   const [animationSpeed, setAnimationSpeed] = useState(1000); // Default 1000ms (1 second)
+  const [selectedTraversal, setSelectedTraversal] = useState('inorder');
    // AVL Tree Helper Functions
    const getHeight = (node) => {
     if (!node) return 0;
@@ -482,6 +483,10 @@ const findNodePosition = (value) => {
     setLines(newLines);
   };
 
+  const handleVisualize = () => {
+    startTraversal(selectedTraversal);
+  };
+
   return (
     <div className="w-full h-screen bg-gray-100 p-4">
       {/* Control Panel */}
@@ -513,29 +518,21 @@ const findNodePosition = (value) => {
           >
             Delete Node
           </button>
+          <select
+            value={selectedTraversal}
+            onChange={(e) => setSelectedTraversal(e.target.value)}
+            className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="inorder">Inorder Traversal</option>
+            <option value="preorder">Preorder Traversal</option>
+            <option value="postorder">Postorder Traversal</option>
+            <option value="levelorder">Level Order Traversal</option>
+          </select>
           <button
-            onClick={() => startTraversal('inorder')}
+            onClick={handleVisualize}
             className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md"
           >
-            Visualize Inorder Traversal
-          </button>
-          <button
-            onClick={() => startTraversal('preorder')}
-            className="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-md"
-          >
-            Visualize Preorder Traversal
-          </button>
-          <button
-            onClick={() => startTraversal('postorder')}
-            className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-md"
-          >
-            Visualize Postorder Traversal
-          </button>
-          <button
-            onClick={() => startTraversal('levelorder')}
-            className="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-md"
-          >
-            Visualize Level-order Traversal
+            Visualize Traversal
           </button>
           <button
             onClick={generateRandomAVLTree}

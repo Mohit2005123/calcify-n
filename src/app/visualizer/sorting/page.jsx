@@ -413,8 +413,16 @@ const SortingAlgo = () => {
                 </div>
                 <button onClick={toggleView} style={{
                     ...secondaryButtonStyle,
+                    padding: '0.5rem 0.75rem',
+                    fontSize: '0.875rem',
+                    backgroundColor: '#4a5568',
+                    color: 'white',
+                    border: 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.25rem',
                 }}>
-                    {showBars ? 'Switch to Grid View' : 'Switch to Bars View'}
+                    {showBars ? '⊞ Grid' : '▭ Bars'}
                 </button>
             </div>
 

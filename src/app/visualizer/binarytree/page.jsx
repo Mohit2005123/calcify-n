@@ -11,6 +11,22 @@ const BinaryTree = () => {
   const [highlightedNode, setHighlightedNode] = useState(null); 
   const svgRef = useRef(null);
   const [visualizationSpeed, setVisualizationSpeed] = useState(1000); // Default speed: 1000ms
+  const [selectedTraversal, setSelectedTraversal] = useState('inorder');
+
+  const traversalOptions = [
+    { value: 'inorder', label: 'Inorder', func: inorderTraversal },
+    { value: 'preorder', label: 'Preorder', func: preorderTraversal },
+    { value: 'postorder', label: 'Postorder', func: postorderTraversal },
+    { value: 'levelOrder', label: 'Level Order', func: levelOrderTraversal },
+  ];
+
+  const handleVisualize = () => {
+    const selectedOption = traversalOptions.find(option => option.value === selectedTraversal);
+    if (selectedOption) {
+      visualizeTraversal(selectedOption.func);
+    }
+  };
+
   const getLeftChild = (node) => nodes.find(n => n.id === node.left);
   const getRightChild = (node) => nodes.find(n => n.id === node.right);
   // Visualize traversal by highlighting nodes in sequence
@@ -331,18 +347,23 @@ const BinaryTree = () => {
         >
           Generate Random Tree
         </button>
-        {/* Algorithm Visualization Buttons */}
-        <button onClick={() => visualizeTraversal(inorderTraversal)} className="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-md">
-          Visualize Inorder
-        </button>
-        <button onClick={() => visualizeTraversal(preorderTraversal)} className="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-md">
-          Visualize Preorder
-        </button>
-        <button onClick={() => visualizeTraversal(postorderTraversal)} className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md">
-          Visualize Postorder
-        </button>
-        <button onClick={() => visualizeTraversal(levelOrderTraversal)} className="px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white rounded-md">
-          Visualize Level Order
+        {/* Replace the four visualization buttons with a dropdown and a single button */}
+        <select
+          value={selectedTraversal}
+          onChange={(e) => setSelectedTraversal(e.target.value)}
+          className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          {traversalOptions.map(option => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+        <button
+          onClick={handleVisualize}
+          className="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-md"
+        >
+          Visualize
         </button>
         {/* Add this slider control */}
         <div className="flex items-center">
