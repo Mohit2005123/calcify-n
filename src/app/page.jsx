@@ -4,6 +4,7 @@ import { AppleCardsCarouselDemo } from "@/components/landingpage/Carousel";
 import { StickyScrollRevealDemo } from "@/components/landingpage/StickyScroll";
 import Footer from "@/components/landingpage/Footer";
 import { HeroParallaxDemo } from "@/components/landingpage/ScrollParrallax";
+import { InfiniteMovingCardsDemo } from "@/components/landingpage/MovingCards";
 export default function Home() {
   return (
     <div>
@@ -13,6 +14,7 @@ export default function Home() {
         <AppleCardsCarouselDemo />
         <HeroParallaxDemo />
         <StickyScrollRevealDemo />
+        <InfiniteMovingCardsDemo />
         <Footer />
       </div>
     </div>
