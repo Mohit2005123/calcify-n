@@ -5,6 +5,10 @@ import { ArrowRight, Calculator, Share2, Atom, ChevronLeft, ChevronRight } from 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import Link from 'next/link';
+import { Slider } from '@/components/ui/slider';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const styles = {
   fadeInUp: {
@@ -27,6 +31,9 @@ export default function Hero() {
   const [activeFeature, setActiveFeature] = useState(null);
   const [complexity, setComplexity] = useState(0.5);
   const [isHovered, setIsHovered] = useState(false);
+  const [showGrid, setShowGrid] = useState(true);
+  const [lineType, setLineType] = useState('monotone');
+  const [animationSpeed, setAnimationSpeed] = useState(3000);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -106,46 +113,95 @@ export default function Hero() {
           </div>
 
           <div className="bg-indigo-50 rounded-xl p-6 shadow-xl">
-            <div className="mb-4 flex justify-center gap-4">
-              <Button 
-                onClick={() => handleComplexityChange(0.5)}
-                variant={complexity === 0.5 ? "default" : "outline"}
-              >
-                Simple
-              </Button>
-              <Button 
-                onClick={() => handleComplexityChange(1)}
-                variant={complexity === 1 ? "default" : "outline"}
-              >
-                Medium
-              </Button>
-              <Button 
-                onClick={() => handleComplexityChange(1.5)}
-                variant={complexity === 1.5 ? "default" : "outline"}
-              >
-                Complex
-              </Button>
-            </div>
-            <ResponsiveContainer width="100%" height={400}>
-              <LineChart data={graphData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-                <XAxis dataKey="x" stroke="#4B5563" />
-                <YAxis stroke="#4B5563" />
-                <Tooltip 
-                  contentStyle={{ backgroundColor: '#F3F4F6', border: '1px solid #E5E7EB' }}
-                  cursor={{ stroke: '#6366F1', strokeWidth: 2 }}
-                />
-                <Line 
-                  type="monotone" 
-                  dataKey="y" 
-                  stroke="#6366F1" 
-                  strokeWidth={2} 
-                  dot={{ r: 4, stroke: '#6366F1', strokeWidth: 2, fill: '#F3F4F6' }}
-                  activeDot={{ r: 8, fill: '#4F46E5' }}
-                  animationDuration={300}
-                />
-              </LineChart>
-            </ResponsiveContainer>
+            <Tabs defaultValue="graph" className="mb-4">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="graph">Graph</TabsTrigger>
+                <TabsTrigger value="settings">Settings</TabsTrigger>
+              </TabsList>
+              <TabsContent value="graph">
+                <div className="mb-4 flex justify-center gap-4">
+                  <Button 
+                    onClick={() => handleComplexityChange(0.5)}
+                    variant={complexity === 0.5 ? "default" : "outline"}
+                  >
+                    Simple
+                  </Button>
+                  <Button 
+                    onClick={() => handleComplexityChange(1)}
+                    variant={complexity === 1 ? "default" : "outline"}
+                  >
+                    Medium
+                  </Button>
+                  <Button 
+                    onClick={() => handleComplexityChange(1.5)}
+                    variant={complexity === 1.5 ? "default" : "outline"}
+                  >
+                    Complex
+                  </Button>
+                </div>
+                <ResponsiveContainer width="100%" height={400}>
+                  <LineChart data={graphData}>
+                    {showGrid && <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />}
+                    <XAxis dataKey="x" stroke="#4B5563" />
+                    <YAxis stroke="#4B5563" />
+                    <Tooltip 
+                      contentStyle={{ backgroundColor: '#F3F4F6', border: '1px solid #E5E7EB' }}
+                      cursor={{ stroke: '#6366F1', strokeWidth: 2 }}
+                    />
+                    <Line 
+                      type={lineType}
+                      dataKey="y" 
+                      stroke="#6366F1" 
+                      strokeWidth={2} 
+                      dot={{ r: 4, stroke: '#6366F1', strokeWidth: 2, fill: '#F3F4F6' }}
+                      activeDot={{ r: 8, fill: '#4F46E5' }}
+                      animationDuration={300}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </TabsContent>
+              <TabsContent value="settings">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="show-grid">Show Grid</Label>
+                    <Switch
+                      id="show-grid"
+                      checked={showGrid}
+                      onCheckedChange={setShowGrid}
+                    />
+                  </div>
+                  <div>
+                    <Label>Line Type</Label>
+                    <div className="flex gap-2 mt-2">
+                      {['monotone', 'linear', 'step'].map((type) => (
+                        <Button
+                          key={type}
+                          variant={lineType === type ? 'default' : 'outline'}
+                          onClick={() => setLineType(type)}
+                          className="capitalize"
+                        >
+                          {type}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <Label>Animation Speed</Label>
+                    <Slider
+                      min={1000}
+                      max={5000}
+                      step={500}
+                      value={[animationSpeed]}
+                      onValueChange={(value) => setAnimationSpeed(value[0])}
+                      className="mt-2"
+                    />
+                    <p className="text-sm text-gray-500 mt-1">
+                      {animationSpeed / 1000}s
+                    </p>
+                  </div>
+                </div>
+              </TabsContent>
+            </Tabs>
           </div>
         </div>
       </div>
