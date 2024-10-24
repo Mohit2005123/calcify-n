@@ -15,31 +15,61 @@ export function InfiniteMovingCardsDemo() {
 const testimonials = [
   {
     quote:
-      "It was the best of times, it was the worst of times, it was the age of wisdom, it was the age of foolishness, it was the epoch of belief, it was the epoch of incredulity, it was the season of Light, it was the season of Darkness, it was the spring of hope, it was the winter of despair.",
-    name: "Charles Dickens",
-    title: "A Tale of Two Cities",
+      "Explore complex mathematical functions with our intuitive graphing calculator, designed for students and professionals alike.",
+    name: "Graphing Calculator",
+    title: "Feature Highlight",
   },
   {
     quote:
-      "To be, or not to be, that is the question: Whether 'tis nobler in the mind to suffer The slings and arrows of outrageous fortune, Or to take Arms against a Sea of troubles, And by opposing end them: to die, to sleep.",
-    name: "William Shakespeare",
-    title: "Hamlet",
+      "Visualize algorithms in action and understand their inner workings with our interactive algorithm visualizer.",
+    name: "Algorithm Visualizer",
+    title: "Feature Highlight",
   },
   {
-    quote: "All that we see or seem is but a dream within a dream.",
-    name: "Edgar Allan Poe",
-    title: "A Dream Within a Dream",
-  },
-  {
-    quote:
-      "It is a truth universally acknowledged, that a single man in possession of a good fortune, must be in want of a wife.",
-    name: "Jane Austen",
-    title: "Pride and Prejudice",
+    quote: "Stay tuned for more exciting features that will enhance your learning and productivity.",
+    name: "Coming Soon",
+    title: "Feature Teaser",
   },
   {
     quote:
-      "Call me Ishmael. Some years ago—never mind how long precisely—having little or no money in my purse, and nothing particular to interest me on shore, I thought I would sail about a little and see the watery part of the world.",
-    name: "Herman Melville",
-    title: "Moby-Dick",
+      "Our platform is built to support a wide range of educational tools, from basic arithmetic to advanced computational models.",
+    name: "Educational Tools",
+    title: "Feature Overview",
+  },
+  {
+    quote:
+      "Join our community of learners and educators to share insights and collaborate on projects.",
+    name: "Community",
+    title: "Engagement",
+  },
+  {
+    quote:
+      "Access a library of pre-built templates and examples to kickstart your projects and learning.",
+    name: "Template Library",
+    title: "Resource Hub",
+  },
+  {
+    quote:
+      "Track your progress with personalized dashboards and analytics, helping you stay on top of your learning goals.",
+    name: "Progress Tracking",
+    title: "Personalized Learning",
+  },
+  {
+    quote:
+      "Collaborate in real-time with peers and mentors using our integrated communication tools.",
+    name: "Real-Time Collaboration",
+    title: "Interactive Learning",
+  },
+  {
+    quote:
+      "Enhance your understanding with step-by-step tutorials and guided exercises.",
+    name: "Guided Learning",
+    title: "Tutorials & Exercises",
+  },
+  {
+    quote:
+      "Experience seamless integration with other educational platforms and tools.",
+    name: "Platform Integration",
+    title: "Seamless Experience",
   },
 ];
