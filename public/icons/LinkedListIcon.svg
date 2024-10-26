@@ -1,0 +1,29 @@
+<svg width="120" height="24" viewBox="0 0 120 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor">
+  <!-- Box 1 with number 1 -->
+  <rect x="0" y="0" width="20" height="20" fill="#e0e0e0" stroke="#333" rx="3"/>
+  <text x="10" y="15" font-size="12" text-anchor="middle" fill="#333">1</text>
+  
+  <!-- Arrow from Box 1 to Box 2 -->
+  <line x1="20" y1="10" x2="25" y2="10" stroke="#333" stroke-width="2"/>
+  <polygon points="23,8 25,10 23,12" fill="#333"/>
+  
+  <!-- Box 2 with number 2 -->
+  <rect x="30" y="0" width="20" height="20" fill="#e0e0e0" stroke="#333" rx="3"/>
+  <text x="40" y="15" font-size="12" text-anchor="middle" fill="#333">2</text>
+  
+  <!-- Arrow from Box 2 to Box 3 -->
+  <line x1="50" y1="10" x2="55" y2="10" stroke="#333" stroke-width="2"/>
+  <polygon points="53,8 55,10 53,12" fill="#333"/>
+  
+  <!-- Box 3 with number 3 -->
+  <rect x="60" y="0" width="20" height="20" fill="#e0e0e0" stroke="#333" rx="3"/>
+  <text x="70" y="15" font-size="12" text-anchor="middle" fill="#333">3</text>
+  
+  <!-- Arrow from Box 3 to Box 4 -->
+  <line x1="80" y1="10" x2="85" y2="10" stroke="#333" stroke-width="2"/>
+  <polygon points="83,8 85,10 83,12" fill="#333"/>
+  
+  <!-- Box 4 with number 4 -->
+  <rect x="90" y="0" width="20" height="20" fill="#e0e0e0" stroke="#333" rx="3"/>
+  <text x="100" y="15" font-size="12" text-anchor="middle" fill="#333">4</text>
+</svg>

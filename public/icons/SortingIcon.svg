@@ -1,0 +1,28 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 24 24"
+  fill="currentColor"
+  width="24px"
+  height="24px"
+>
+  <!-- Background rectangle -->
+  <rect x="1" y="1" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1" />
+  
+  <!-- Number 1 -->
+  <text x="4" y="8" font-family="Arial" font-size="6" fill="currentColor">1</text>
+  
+  <!-- Number 2 -->
+  <text x="10" y="8" font-family="Arial" font-size="6" fill="currentColor">2</text>
+  
+  <!-- Number 3 -->
+  <text x="16" y="8" font-family="Arial" font-size="6" fill="currentColor">3</text>
+  
+  <!-- Number 4 -->
+  <text x="4" y="16" font-family="Arial" font-size="6" fill="currentColor">4</text>
+  
+  <!-- Number 5 -->
+  <text x="10" y="16" font-family="Arial" font-size="6" fill="currentColor">5</text>
+  
+  <!-- Number 6 -->
+  <text x="16" y="16" font-family="Arial" font-size="6" fill="currentColor">6</text>
+</svg>
