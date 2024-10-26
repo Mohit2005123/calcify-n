@@ -1,7 +1,6 @@
 'use client'
-import React from 'react'
-import Link from 'next/link'
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -9,35 +8,34 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
-} from "@/components/ui/navigation-menu"
-import { Button } from "@/components/ui/button"
-import { Menu, X, Calculator, Home, Info, Activity } from 'lucide-react'
+} from "@/components/ui/navigation-menu";
+import { Button } from "@/components/ui/button";
+import { Menu, X, Calculator, Home, Info, Activity } from 'lucide-react';
+import { useAuth } from '../../app/context/AuthContext';
 
 const Navbar = () => {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [scrolled, setScrolled] = useState(false)
+  const { user } = useAuth();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
-  // Handle navbar background change on scroll
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 20)
-    }
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const navItems = [
     { href: '/', label: 'Home', icon: Home },
     { href: '/visualizer', label: 'Visualizer', icon: Activity },
     { href: '/graphingCalculator', label: 'Graphing Calculator', icon: Calculator },
     { href: '/about', label: 'About', icon: Info },
-  ]
+  ];
 
   return (
     <nav className={`fixed top-0 w-full z-50 transition-all duration-300 bg-white ${
-      scrolled 
-        ? 'backdrop-blur-md border-b border-gray-200 shadow-sm' 
-        : ''
+      scrolled ? 'backdrop-blur-md border-b border-gray-200 shadow-sm' : ''
     }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
@@ -68,10 +66,18 @@ const Navbar = () => {
 
           {/* Desktop Right Side */}
           <div className="hidden lg:flex lg:items-center lg:space-x-4">
-            <Button variant="ghost">Sign In</Button>
-            <Button variant="default" className="bg-indigo-600 hover:bg-indigo-700">
-              Get Started
-            </Button>
+            {user ? (
+              <span className="text-gray-700 font-semibold">
+                Hello, {user.firstName} {user.lastName}
+              </span>
+            ) : (
+              <>
+                <Button variant="ghost">Sign In</Button>
+                <Button variant="default" className="bg-indigo-600 hover:bg-indigo-700">
+                  Get Started
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -125,8 +131,16 @@ const Navbar = () => {
                     </Link>
                   ))}
                   <div className="pt-6 space-y-4">
-                    <Button variant="outline" className="w-full">Sign In</Button>
-                    <Button className="w-full bg-indigo-600 hover:bg-indigo-700">Get Started</Button>
+                    {user ? (
+                      <span className="text-center text-gray-700 font-semibold">
+                        Hello, {user.firstName} {user.lastName}
+                      </span>
+                    ) : (
+                      <>
+                        <Button variant="outline" className="w-full">Sign In</Button>
+                        <Button className="w-full bg-indigo-600 hover:bg-indigo-700">Get Started</Button>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
@@ -135,8 +149,8 @@ const Navbar = () => {
         </div>
       )}
     </nav>
-  )
-}
+  );
+};
 
 // Example of a Logo component
 const Logo = () => (
@@ -145,6 +159,6 @@ const Logo = () => (
     <div className="absolute inset-0 bg-indigo-500 rounded-lg transform -rotate-3"></div>
     <span className="relative flex items-center justify-center h-full text-white font-bold">C</span>
   </div>
-)
+);
 
-export default Navbar
+export default Navbar;
