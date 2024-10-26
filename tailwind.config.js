@@ -6,6 +6,7 @@
 // } = require("tailwindcss/lib/util/flattenColorPalette");
 // const plugin = require("tailwindcss/plugin");
 // const flattenColorPalette = require("tailwindcss/lib/util/flattenColorPalette");
+const {nextui} = require("@nextui-org/react");
 import plugin from "tailwindcss/plugin"
 import flattenColorPalette from "tailwindcss/lib/util/flattenColorPalette"
 module.exports = {
@@ -15,6 +16,7 @@ module.exports = {
     './components/**/*.{js,jsx, ts, tsx}',
     './app/**/*.{js,jsx, ts, tsx}',
     './src/**/*.{js,jsx, ts, tsx}',
+	"./node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}",
   ],
   prefix: "",
   theme: {
@@ -103,8 +105,11 @@ module.exports = {
           "scroll var(--animation-duration, 40s) var(--animation-direction, forwards) linear infinite",
       },
     },
+    fontFamily: {
+      poppins: ['Poppins', 'sans-serif'],
+    },
   },
-  plugins: [require("tailwindcss-animate"), addVariablesForColors],
+  plugins: [require("tailwindcss-animate"), addVariablesForColors, nextui()],
 }
 function addVariablesForColors({ addBase, theme }) {
 	let allColors = flattenColorPalette(theme("colors"));
