@@ -10,20 +10,31 @@ import {
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Calculator, Home, Info, Activity } from 'lucide-react';
+import { Menu, X, Calculator, Home, Info, Activity, Loader2 } from 'lucide-react';
 import { useAuth } from '../../app/context/AuthContext';
 import { signOut, getAuth } from 'firebase/auth';
+import {useRouter} from 'next/navigation';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
 const Navbar = () => {
   const { user } = useAuth();
   const auth = getAuth();
+  const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [userName, setUserName] = useState('');
   const [loading, setLoading] = useState(true);
+  const [profileImage, setProfileImage] = useState('');
   const logout = async () => {
     await signOut(auth);
      localStorage.removeItem('user');
-     window.location.href = '/login';
+     router.push('/login');
   }
   useEffect(() => {
     const handleScroll = () => {
@@ -39,11 +50,13 @@ const Navbar = () => {
       try {
         const parsedName = JSON.parse(storedName);
         setUserName(parsedName.displayName || `${parsedName.firstName} ${parsedName.lastName}`);
+        setProfileImage(parsedName.photoURL || '');
       } catch (error) {
         console.error("Failed to parse stored user name:", error);
       }
     } else if (user) {
       setUserName(user.displayName || `${user.firstName} ${user.lastName}`);
+      setProfileImage(user.photoURL || '');
     }
     setLoading(false);
   }, [user]);
@@ -54,6 +67,14 @@ const Navbar = () => {
     { href: '/graphingCalculator', label: 'Graphing Calculator', icon: Calculator },
     { href: '/about', label: 'About', icon: Info },
   ];
+
+  const getInitials = (name) => {
+    return name
+      .split(' ')
+      .map(word => word[0])
+      .join('')
+      .toUpperCase();
+  };
 
   return (
     <nav className={`fixed top-0 w-full z-50 transition-all duration-300 bg-white ${
@@ -89,19 +110,34 @@ const Navbar = () => {
           {/* Desktop Right Side */}
           <div className="hidden lg:flex lg:items-center lg:space-x-4">
             {loading ? (
-              <span>Loading...</span>
+              <Loader2 className="h-4 w-4 animate-spin text-gray-600" />
             ) : userName ? (
-              <>
-                <span className="text-gray-700 font-semibold">
-                  Hello, {userName}
-                </span>
-                <Button variant="ghost" onClick={logout}>Logout</Button>
-              </>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                    <Avatar className="h-8 w-8">
+                      {profileImage ? (
+                        <AvatarImage src={profileImage} alt={userName} />
+                      ) : (
+                        <AvatarFallback>{getInitials(userName)}</AvatarFallback>
+                      )}
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem className="flex items-center">
+                    <span className="text-sm font-medium">{userName}</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={logout}>
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : (
               <>
-                <Button variant="ghost">Sign In</Button>
-                <Button variant="default" className="bg-indigo-600 hover:bg-indigo-700">
-                  Get Started
+                <Button variant="ghost" onClick={() => router.push('/signup')}>Sign Up</Button>
+                <Button variant="default" className="bg-indigo-600 hover:bg-indigo-700" onClick={() => router.push('/login')}>
+                  Login
                 </Button>
               </>
             )}
@@ -159,7 +195,9 @@ const Navbar = () => {
                   ))}
                   <div className="pt-6 space-y-4">
                     {loading ? (
-                      <span>Loading...</span>
+                      <div className="flex justify-center">
+                        <Loader2 className="h-6 w-6 animate-spin text-gray-600" />
+                      </div>
                     ) : userName ? (
                       <>
                         <span className="text-center text-gray-700 font-semibold">
@@ -169,8 +207,8 @@ const Navbar = () => {
                       </>
                     ) : (
                       <>
-                        <Button variant="outline" className="w-full">Sign In</Button>
-                        <Button className="w-full bg-indigo-600 hover:bg-indigo-700">Get Started</Button>
+                        <Button variant="outline" className="w-full" onClick={() => router.push('/signup')}>Sign Up</Button>
+                        <Button className="w-full bg-indigo-600 hover:bg-indigo-700" onClick={() => router.push('/login')}>Login</Button>
                       </>
                     )}
                   </div>
