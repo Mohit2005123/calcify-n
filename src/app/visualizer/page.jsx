@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import Navbar from '@/components/landingpage/Navbar';
 import Footer from '@/components/landingpage/Footer';
-import dynamic from 'next/dynamic';
 
 const Visualizer = () => {
   const links = [

@@ -11,17 +11,20 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        // Retrieve additional user info from Firestore if it exists
         const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
-        if (userDoc.exists()) {
-          setUser({ ...firebaseUser, ...userDoc.data() });
-        } else {
-          setUser(firebaseUser);
-        }
+        const userData = userDoc.exists() ? { ...firebaseUser, ...userDoc.data() } : firebaseUser;
+        setUser(userData);
+        localStorage.setItem('user', JSON.stringify(userData));
       } else {
         setUser(null);
+        localStorage.removeItem('user');
       }
     });
     return () => unsubscribe();

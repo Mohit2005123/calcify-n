@@ -17,6 +17,8 @@ const Navbar = () => {
   const { user } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [userName, setUserName] = useState('');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -25,6 +27,21 @@ const Navbar = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  useEffect(() => {
+    const storedName = localStorage.getItem('user');
+    if (storedName) {
+      try {
+        const parsedName = JSON.parse(storedName);
+        setUserName(parsedName.displayName || `${parsedName.firstName} ${parsedName.lastName}`);
+      } catch (error) {
+        console.error("Failed to parse stored user name:", error);
+      }
+    } else if (user) {
+      setUserName(user.displayName || `${user.firstName} ${user.lastName}`);
+    }
+    setLoading(false);
+  }, [user]);
 
   const navItems = [
     { href: '/', label: 'Home', icon: Home },
@@ -66,9 +83,11 @@ const Navbar = () => {
 
           {/* Desktop Right Side */}
           <div className="hidden lg:flex lg:items-center lg:space-x-4">
-            {user ? (
+            {loading ? (
+              <span>Loading...</span>
+            ) : userName ? (
               <span className="text-gray-700 font-semibold">
-                Hello, {user.firstName} {user.lastName}
+                Hello, {userName}
               </span>
             ) : (
               <>
@@ -131,9 +150,11 @@ const Navbar = () => {
                     </Link>
                   ))}
                   <div className="pt-6 space-y-4">
-                    {user ? (
+                    {loading ? (
+                      <span>Loading...</span>
+                    ) : userName ? (
                       <span className="text-center text-gray-700 font-semibold">
-                        Hello, {user.firstName} {user.lastName}
+                        Hello, {userName}
                       </span>
                     ) : (
                       <>
