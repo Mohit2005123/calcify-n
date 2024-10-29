@@ -12,14 +12,19 @@ import {
 import { Button } from "@/components/ui/button";
 import { Menu, X, Calculator, Home, Info, Activity } from 'lucide-react';
 import { useAuth } from '../../app/context/AuthContext';
-
+import { signOut, getAuth } from 'firebase/auth';
 const Navbar = () => {
   const { user } = useAuth();
+  const auth = getAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [userName, setUserName] = useState('');
   const [loading, setLoading] = useState(true);
-
+  const logout = async () => {
+    await signOut(auth);
+     localStorage.removeItem('user');
+     window.location.href = '/login';
+  }
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
@@ -86,9 +91,12 @@ const Navbar = () => {
             {loading ? (
               <span>Loading...</span>
             ) : userName ? (
-              <span className="text-gray-700 font-semibold">
-                Hello, {userName}
-              </span>
+              <>
+                <span className="text-gray-700 font-semibold">
+                  Hello, {userName}
+                </span>
+                <Button variant="ghost" onClick={logout}>Logout</Button>
+              </>
             ) : (
               <>
                 <Button variant="ghost">Sign In</Button>
@@ -153,9 +161,12 @@ const Navbar = () => {
                     {loading ? (
                       <span>Loading...</span>
                     ) : userName ? (
-                      <span className="text-center text-gray-700 font-semibold">
-                        Hello, {userName}
-                      </span>
+                      <>
+                        <span className="text-center text-gray-700 font-semibold">
+                          Hello, {userName}
+                        </span>
+                        <Button variant="outline" onClick={logout} className="w-full">Logout</Button>
+                      </>
                     ) : (
                       <>
                         <Button variant="outline" className="w-full">Sign In</Button>

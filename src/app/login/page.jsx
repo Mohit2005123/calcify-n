@@ -7,7 +7,7 @@ import { FcGoogle } from 'react-icons/fc';
 import Navbar from '@/components/landingpage/Navbar';
 import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { auth } from '../../lib/firebase';
-import {doc, getDoc} from 'firebase/firestore';
+import {doc, getDoc, setDoc} from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -45,8 +45,13 @@ export default function Login() {
       if (userDoc.exists()) {
         router.push('/');
       } else {
-        setError('User not found in the database.');
-        await auth.signOut(); // Sign out if user not in the database
+        // Create a new user in the database if not found
+        await setDoc(doc(db, 'users', user.uid), {
+          email: user.email,
+          displayName: user.displayName,
+          // Add any other user information you want to store
+        });
+        router.push('/'); // Redirect to dashboard after creating the user
       }
     } catch (error) {
         console.log(error);
