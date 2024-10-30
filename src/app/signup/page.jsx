@@ -1,7 +1,7 @@
 "use client"
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Checkbox } from "@nextui-org/react";
 import { FcGoogle } from 'react-icons/fc';
@@ -10,6 +10,9 @@ import { createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } f
 import { auth } from '../../lib/firebase';
 import {doc, setDoc, getDoc} from 'firebase/firestore';
 import {db} from '../../lib/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
+import Cookies from 'js-cookie';
+
 export default function SignUp() {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -19,6 +22,23 @@ export default function SignUp() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
+
+  useEffect(() => {
+    const sessionToken = Cookies.get('sessionToken');
+    if (sessionToken) {
+      router.push('/');
+      return;
+    }
+
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        router.push('/');
+      }
+    });
+
+    return () => unsubscribe();
+  }, [router]);
+
   const addUserToFirestore = async (userId, firstName, lastName, email) => {
     const userDoc = doc(db, "users", userId); // Document path: 'users/{userId}'
     await setDoc(userDoc, { firstName, lastName, email }, { merge: true });
