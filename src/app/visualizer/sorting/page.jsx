@@ -41,7 +41,10 @@ const SortingAlgo = () => {
     });
     const [sorting, setSorting] = useState(false);
     const [showBars, setShowBars] = useState(true);
-    const [inputArray, setInputArray] = useState(arrays.bubble.join(', '));
+    const [inputArray, setInputArray] = useState(() => {
+        const initialArray = arrays.bubble || [];
+        return initialArray.join(', ');
+    });
     const [sortingSpeed, setSortingSpeed] = useState(50);
     const [isPaused, setIsPaused] = useState(false);
     const pauseRef = useRef(false);
@@ -162,10 +165,6 @@ const SortingAlgo = () => {
 
     const handleAlgorithmToggle = (algorithm) => {
         setSelectedAlgorithms(prev => {
-            if (prev.includes(algorithm) && prev.length === 1) {
-                return prev;
-            }
-
             if (prev.includes(algorithm)) {
                 return prev.filter(a => a !== algorithm);
             }
