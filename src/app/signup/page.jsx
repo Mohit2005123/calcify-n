@@ -67,7 +67,7 @@ export default function SignUp() {
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
       <Navbar />
-      <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-4xl flex flex-col">
+      <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-4xl flex flex-col mt-10">
         <div className="flex">
           <div className="w-full max-w-sm">
             <div className="flex flex-col items-start mb-4">
@@ -160,10 +160,6 @@ export default function SignUp() {
               <div className="flex items-center mb-4">
                 <Checkbox isSelected={showPassword} onValueChange={setShowPassword}>Show password</Checkbox>
               </div>
-        
-              <button type="submit" className="bg-blue-600 text-white py-2 px-4 rounded-full text-base font-semibold hover:bg-blue-700 transition duration-300 w-full max-w-sm">
-                Create an account
-              </button>
             </form>
           </div>
           
@@ -176,6 +172,13 @@ export default function SignUp() {
             />
           </div>
         </div>
+        
+        <button 
+          onClick={handleSignUp}
+          className="bg-blue-600 text-white py-2 px-4 rounded-full text-base font-semibold hover:bg-blue-700 transition duration-300 w-full max-w-sm mb-4 mx-auto mt-4"
+        >
+          Create an account
+        </button>
         
         <div className="mt-4 flex flex-col items-center">
           <div className="my-2 text-center text-gray-500">or</div>
