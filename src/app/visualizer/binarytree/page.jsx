@@ -36,6 +36,8 @@ const BinaryTree = () => {
     const rootNode = nodes.find(node => node.parent === null);
     const traversalOrder = traversalFunc(rootNode, getLeftChild, getRightChild);
 
+    console.log('Traversal Order:', traversalOrder); // Debugging line
+
     traversalOrder.forEach((node, index) => {
       setTimeout(() => setHighlightedNode(node.id), index * visualizationSpeed);
     });
@@ -71,12 +73,10 @@ const BinaryTree = () => {
     if (!nodeValue.trim()) return;
 
     if (position === 'root' && nodes.length > 0) {
-      // Only one root node is allowed
       alert("The binary tree can only have one root node.");
       return;
     }
 
-    // Check if the selected node already has a left or right child
     const existingChild = nodes.find(n => n.parent === selectedNode.id && n.isLeft === (position === 'left'));
     if (existingChild) {
       alert(`The selected node already has a ${position} child.`);
@@ -93,6 +93,14 @@ const BinaryTree = () => {
       parent: position === 'root' ? null : selectedNode.id,
       isLeft: position === 'left'
     };
+
+    if (position !== 'root') {
+      if (position === 'left') {
+        selectedNode.left = newNode.id;
+      } else {
+        selectedNode.right = newNode.id;
+      }
+    }
 
     if (position !== 'root') {
       const { length, angle } = calculateLineMetrics(
