@@ -300,7 +300,21 @@ const SortingAlgo = () => {
 
     return (
         <div style={{ padding: '1rem', fontFamily: 'Arial, sans-serif' }}>
-            <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem' }}>Algorithm Comparison Visualizer</h1>
+            <button 
+                onClick={() => window.location.href = '/visualizer'}
+                style={{
+                    ...secondaryButtonStyle,
+                    marginBottom: '1rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem'
+                }}
+            >
+                ←
+            </button>
+            <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem' }}>
+                Algorithm Comparison Visualizer
+            </h1>
 
             <div style={{ marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 <h2 style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>Input Array Configuration</h2>
