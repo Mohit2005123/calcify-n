@@ -51,14 +51,14 @@ const Navbar = () => {
         const parsedName = JSON.parse(storedName);
         setUserName(parsedName.displayName || `${parsedName.firstName} ${parsedName.lastName}`);
         setProfileImage(parsedName.photoURL || '');
-        console.log("User image URL from localStorage:", parsedName.photoURL);
+        console.log("Profile image being set from localStorage:", parsedName.photoURL);
       } catch (error) {
         console.error("Failed to parse stored user name:", error);
       }
     } else if (user) {
       setUserName(user.displayName || `${user.firstName} ${user.lastName}`);
       setProfileImage(user.photoURL || '');
-      console.log("User image URL from user object:", user.photoURL);
+      console.log("Profile image being set from user:", user.photoURL);
     }
     setLoading(false);
   }, [user]);
@@ -118,8 +118,15 @@ const Navbar = () => {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                     <Avatar className="h-8 w-8">
-                      {profileImage ? (
-                        <AvatarImage src={profileImage} alt={userName} />
+                      {profileImage && profileImage !== '' ? (
+                        <AvatarImage 
+                          src={profileImage} 
+                          alt={userName}
+                          onError={(e) => {
+                            console.error("Failed to load image:", e);
+                            e.target.style.display = 'none';
+                          }}
+                        />
                       ) : (
                         <AvatarFallback>{getInitials(userName)}</AvatarFallback>
                       )}

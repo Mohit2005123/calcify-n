@@ -54,11 +54,14 @@ const Footer = () => {
                 placeholder="Company Name"
                 className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
               />
-              <select className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition appearance-none">
-                <option value="" disabled selected>Select your role</option>
-                <option>CEO</option>
-                <option>Manager</option>
-                <option>Developer</option>
+              <select 
+                className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition appearance-none"
+                defaultValue=""
+              >
+                <option value="" disabled>Select your role</option>
+                <option value="ceo">CEO</option>
+                <option value="manager">Manager</option>
+                <option value="developer">Developer</option>
               </select>
               <input
                 type="tel"
