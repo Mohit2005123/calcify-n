@@ -10,7 +10,7 @@ import { shellSort } from '@/components/sortingAlgo/shellSort';
 import { timSort } from '@/components/sortingAlgo/timSort';
 import { radixSort } from '@/components/sortingAlgo/radixSort';
 import { bucketSort } from '@/components/sortingAlgo/bucketSort';
-import Navbar from '@/components/landingpage/navbar';
+import Navbar from '../../../components/landingpage/Navbar';
 const AVAILABLE_ALGORITHMS = {
     bubble: { name: 'Bubble Sort', color: 'rgba(59, 130, 246, 0.8)', borderColor: '#3b82f6' },
     quick: { name: 'Quick Sort', color: 'rgba(236, 72, 153, 0.8)', borderColor: '#ec4899' },
