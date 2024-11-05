@@ -10,6 +10,7 @@ import { shellSort } from '@/components/sortingAlgo/shellSort';
 import { timSort } from '@/components/sortingAlgo/timSort';
 import { radixSort } from '@/components/sortingAlgo/radixSort';
 import { bucketSort } from '@/components/sortingAlgo/bucketSort';
+import Navbar from '@/components/landingpage/navbar';
 const AVAILABLE_ALGORITHMS = {
     bubble: { name: 'Bubble Sort', color: 'rgba(59, 130, 246, 0.8)', borderColor: '#3b82f6' },
     quick: { name: 'Quick Sort', color: 'rgba(236, 72, 153, 0.8)', borderColor: '#ec4899' },
@@ -300,182 +301,173 @@ const SortingAlgo = () => {
 
     return (
         <div style={{ padding: '1rem', fontFamily: 'Arial, sans-serif' }}>
-            <button 
-                onClick={() => window.location.href = '/visualizer'}
-                style={{
-                    ...secondaryButtonStyle,
-                    marginBottom: '1rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem'
-                }}
-            >
-                ←
-            </button>
-            <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem' }}>
-                Algorithm Comparison Visualizer
-            </h1>
+            <Navbar />
+            <div style={{ marginTop: '5rem' }}>
+                <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem' }}>
+                    Algorithm Comparison Visualizer
+                </h1>
 
-            <div style={{ marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <h2 style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>Input Array Configuration</h2>
-                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                    <label style={{ fontWeight: 'bold' }}>Array Size:</label>
-                    <input
-                        type="number"
-                        value={arraySize}
-                        onChange={(e) => setArraySize(Math.max(2, parseInt(e.target.value)))}
-                        min="2"
-                        style={{
-                            padding: '0.5rem',
-                            border: '1px solid #ccc',
-                            borderRadius: '0.25rem',
-                            width: '80px',
-                        }}
-                    />
-                    <label style={{ fontWeight: 'bold' }}>Range:</label>
-                    <input
-                        type="number"
-                        value={arrayRange.min}
-                        onChange={(e) => setArrayRange({ ...arrayRange, min: parseInt(e.target.value) })}
-                        style={{
-                            padding: '0.5rem',
-                            border: '1px solid #ccc',
-                            borderRadius: '0.25rem',
-                            width: '80px',
-                        }}
-                    />
-                    <span>to</span>
-                    <input
-                        type="number"
-                        value={arrayRange.max}
-                        onChange={(e) => setArrayRange({ ...arrayRange, max: parseInt(e.target.value) })}
-                        style={{
-                            padding: '0.5rem',
-                            border: '1px solid #ccc',
-                            borderRadius: '0.25rem',
-                            width: '80px',
-                        }}
-                    />
-                    <button
-                        onClick={generateRandomArray}
-                        disabled={sorting}
-                        style={{
-                            ...primaryButtonStyle,
-                            alignSelf: 'flex-start',
-                        }}>
-                        Generate Random Array
-                    </button>
-                </div>
-                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                    <label style={{ fontWeight: 'bold' }}>Current Array:</label>
-                    <input
-                        type="text"
-                        value={inputArray}
-                        onChange={handleInputChange}
-                        disabled={sorting}
-                        style={{
-                            padding: '0.5rem',
-                            border: '1px solid #ccc',
-                            borderRadius: '0.25rem',
-                            flex: 1,
-                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-                        }}
-                    />
-                    <button
-                        onClick={resetArrays}
-                        disabled={sorting}
-                        style={{
-                            ...secondaryButtonStyle,
-                        }}>
-                        Reset Array
-                    </button>
-                </div>
-            </div>
-
-            <div style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                <label htmlFor="speed-slider" style={{ fontWeight: 'bold' }}>Sorting Speed:</label>
-                <input
-                    id="speed-slider"
-                    type="range"
-                    min="1"
-                    max="100"
-                    value={sortingSpeed}
-                    onChange={handleSpeedChange}
-                    disabled={sorting}
-                    style={{ flex: 1 }}
-                />
-                <span>{sortingSpeed}%</span>
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                    {Object.keys(AVAILABLE_ALGORITHMS).map(key => (
+                <div style={{ marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    <h2 style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>Input Array Configuration</h2>
+                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                        <label style={{ fontWeight: 'bold' }}>Array Size:</label>
+                        <input
+                            type="number"
+                            value={arraySize}
+                            onChange={(e) => setArraySize(Math.max(2, parseInt(e.target.value)))}
+                            min="2"
+                            style={{
+                                padding: '0.5rem',
+                                border: '1px solid #ccc',
+                                borderRadius: '0.25rem',
+                                width: '80px',
+                            }}
+                        />
+                        <label style={{ fontWeight: 'bold' }}>Range:</label>
+                        <input
+                            type="number"
+                            value={arrayRange.min}
+                            onChange={(e) => setArrayRange({ ...arrayRange, min: parseInt(e.target.value) })}
+                            style={{
+                                padding: '0.5rem',
+                                border: '1px solid #ccc',
+                                borderRadius: '0.25rem',
+                                width: '80px',
+                            }}
+                        />
+                        <span>to</span>
+                        <input
+                            type="number"
+                            value={arrayRange.max}
+                            onChange={(e) => setArrayRange({ ...arrayRange, max: parseInt(e.target.value) })}
+                            style={{
+                                padding: '0.5rem',
+                                border: '1px solid #ccc',
+                                borderRadius: '0.25rem',
+                                width: '80px',
+                            }}
+                        />
                         <button
-                            key={key}
-                            onClick={() => handleAlgorithmToggle(key)}
+                            onClick={generateRandomArray}
+                            disabled={sorting}
+                            style={{
+                                ...primaryButtonStyle,
+                                alignSelf: 'flex-start',
+                            }}>
+                            Generate Random Array
+                        </button>
+                    </div>
+                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                        <label style={{ fontWeight: 'bold' }}>Current Array:</label>
+                        <input
+                            type="text"
+                            value={inputArray}
+                            onChange={handleInputChange}
+                            disabled={sorting}
+                            style={{
+                                padding: '0.5rem',
+                                border: '1px solid #ccc',
+                                borderRadius: '0.25rem',
+                                flex: 1,
+                                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                            }}
+                        />
+                        <button
+                            onClick={resetArrays}
+                            disabled={sorting}
                             style={{
                                 ...secondaryButtonStyle,
-                                backgroundColor: selectedAlgorithms.includes(key) ? AVAILABLE_ALGORITHMS[key].color : '#f3f4f6',
-                                color: selectedAlgorithms.includes(key) ? 'white' : '#1f2937',
-                            }}
-                            disabled={sorting}
-                        >
-                            {AVAILABLE_ALGORITHMS[key].name}
+                            }}>
+                            Reset Array
                         </button>
-                    ))}
+                    </div>
                 </div>
-                <button onClick={toggleView} style={{
-                    ...secondaryButtonStyle,
-                    padding: '0.5rem 0.75rem',
-                    fontSize: '0.875rem',
-                    backgroundColor: '#4a5568',
-                    color: 'white',
-                    border: 'none',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.25rem',
-                }}>
-                    {showBars ? '⊞ Grid' : '▭ Bars'}
-                </button>
-            </div>
 
-            <div style={{ marginBottom: '1rem', display: 'flex', gap: '1rem' }}>
-                <button
-                    onClick={startSort}
-                    disabled={sorting && !isPaused}
-                    style={{
-                        ...primaryButtonStyle,
-                        backgroundColor: sorting ? '#f44336' : '#3b82f6',
-                        width: '200px',
+                <div style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <label htmlFor="speed-slider" style={{ fontWeight: 'bold' }}>Sorting Speed:</label>
+                    <input
+                        id="speed-slider"
+                        type="range"
+                        min="1"
+                        max="100"
+                        value={sortingSpeed}
+                        onChange={handleSpeedChange}
+                        disabled={sorting}
+                        style={{ flex: 1 }}
+                    />
+                    <span>{sortingSpeed}%</span>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                        {Object.keys(AVAILABLE_ALGORITHMS).map(key => (
+                            <button
+                                key={key}
+                                onClick={() => handleAlgorithmToggle(key)}
+                                style={{
+                                    ...secondaryButtonStyle,
+                                    backgroundColor: selectedAlgorithms.includes(key) ? AVAILABLE_ALGORITHMS[key].color : '#f3f4f6',
+                                    color: selectedAlgorithms.includes(key) ? 'white' : '#1f2937',
+                                }}
+                                disabled={sorting}
+                            >
+                                {AVAILABLE_ALGORITHMS[key].name}
+                            </button>
+                        ))}
+                    </div>
+                    <button onClick={toggleView} style={{
+                        ...secondaryButtonStyle,
+                        padding: '0.5rem 0.75rem',
+                        fontSize: '0.875rem',
+                        backgroundColor: '#4a5568',
+                        color: 'white',
+                        border: 'none',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.25rem',
                     }}>
-                    {sorting ? (isPaused ? 'Resume Sorting' : 'Sorting...') : 'Start Sorting'}
-                </button>
+                        {showBars ? '⊞ Grid' : '▭ Bars'}
+                    </button>
+                </div>
 
-                {sorting && (
+                <div style={{ marginBottom: '1rem', display: 'flex', gap: '1rem' }}>
                     <button
-                        onClick={togglePause}
+                        onClick={startSort}
+                        disabled={sorting && !isPaused}
                         style={{
-                            ...secondaryButtonStyle,
+                            ...primaryButtonStyle,
+                            backgroundColor: sorting ? '#f44336' : '#3b82f6',
                             width: '200px',
                         }}>
-                        {isPaused ? 'Resume' : 'Pause'}
+                        {sorting ? (isPaused ? 'Resume Sorting' : 'Sorting...') : 'Start Sorting'}
                     </button>
-                )}
-            </div>
 
-            <div style={getGridStyle()}>
-                {selectedAlgorithms.map(algorithmKey => (
-                    <div key={algorithmKey} style={{
-                        border: `2px solid ${AVAILABLE_ALGORITHMS[algorithmKey].borderColor}`,
-                        padding: '1rem',
-                        borderRadius: '0.25rem'
-                    }}>
-                        {renderArrayVisualization(algorithmKey)}
-                    </div>
-                ))}
+                    {sorting && (
+                        <button
+                            onClick={togglePause}
+                            style={{
+                                ...secondaryButtonStyle,
+                                width: '200px',
+                            }}>
+                            {isPaused ? 'Resume' : 'Pause'}
+                        </button>
+                    )}
+                </div>
+
+                <div style={getGridStyle()}>
+                    {selectedAlgorithms.map(algorithmKey => (
+                        <div key={algorithmKey} style={{
+                            border: `2px solid ${AVAILABLE_ALGORITHMS[algorithmKey].borderColor}`,
+                            padding: '1rem',
+                            borderRadius: '0.25rem'
+                        }}>
+                            {renderArrayVisualization(algorithmKey)}
+                        </div>
+                    ))}
+                </div>
             </div>
         </div>
     );
 };
 
-export default SortingAlgo;
+export default SortingAlgo
