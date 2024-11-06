@@ -1,36 +1,75 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Calcify
+
+Calcify is a web application built using [Next.js](https://nextjs.org/), designed to provide users with a seamless and interactive experience for exploring various mathematical and algorithmic concepts. The app includes features like a graphing calculator, algorithm visualizer, and more.
+
+## Features
+
+- **Graphing Calculator**: Visualize complex equations and functions in real-time.
+- **Algorithm Visualizer**: Understand algorithms through interactive visualizations.
+- **Physics Engine**: (Coming soon) Simulate real-world physics scenarios.
+- **Responsive Design**: Optimized for both desktop and mobile devices.
 
 ## Getting Started
 
-First, run the development server:
+To get a local copy up and running, follow these simple steps.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### Prerequisites
+
+Ensure you have Node.js and npm installed on your machine.
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/calcify.git
+   ```
+2. Navigate to the project directory:
+   ```bash
+   cd calcify
+   ```
+3. Install the dependencies:
+   ```bash
+   npm install
+   ```
+
+### Running the Development Server
+
+Start the development server with:
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## Usage
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+- **Home Page**: Explore the main features of Calcify.
+- **Visualizer**: Access different algorithm visualizers.
+- **Graphing Calculator**: Plot and analyze mathematical functions.
 
-## Learn More
+## Deployment
 
-To learn more about Next.js, take a look at the following resources:
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/). Check out the [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Contributing
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 
-## Deploy on Vercel
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## License
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+Distributed under the MIT License. See `LICENSE` for more information.
+
+## Contact
+
+Your Name - mohitmongia2005@gmail.com
+
+Project Link: [https://github.com/Mohit2005123/calcify-n](https://github.com/Mohit2005123/calcify-n)
+
+## Acknowledgments
+
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Learn Next.js](https://nextjs.org/learn)
+- [Vercel](https://vercel.com/)
