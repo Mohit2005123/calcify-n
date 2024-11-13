@@ -51,7 +51,7 @@ const SortingAlgo = () => {
     const pauseRef = useRef(false);
     const [arraySize, setArraySize] = useState(20);
     const [arrayRange, setArrayRange] = useState({ min: 1, max: 100 });
-
+ 
     useEffect(() => {
         const initialArray = inputArray.split(',').map(num => parseInt(num.trim(), 10));
         const newArrays = {};

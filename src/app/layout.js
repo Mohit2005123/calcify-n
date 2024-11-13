@@ -17,7 +17,6 @@ export const metadata = {
   title: "Calcify",
   description: "A platform for learning and practicing algorithms",
 };
-
 export default function RootLayout({ children }) {
   return (
     <html lang="en">

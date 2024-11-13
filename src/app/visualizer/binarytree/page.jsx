@@ -51,7 +51,7 @@ const BinaryTree = () => {
     if (!node || !node.parent) return null;
     return nodes.find(n => n.id === node.parent);
   };
-
+2
   // Helper to determine if node is left or right child
   const isLeftChild = (node) => {
     const parent = findParentNode(node.id);
