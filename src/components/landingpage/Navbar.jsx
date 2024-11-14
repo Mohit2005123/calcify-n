@@ -10,7 +10,7 @@ import {
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Calculator, Home, Info, Activity, Loader2 } from 'lucide-react';
+import { Menu, X, Calculator, Home, Info, Activity, Loader2, Atom } from 'lucide-react';
 import { useAuth } from '../../app/context/AuthContext';
 import { signOut, getAuth } from 'firebase/auth';
 import {useRouter} from 'next/navigation';
@@ -67,6 +67,7 @@ const Navbar = () => {
     { href: '/', label: 'Home', icon: Home },
     { href: '/visualizer', label: 'Visualizer', icon: Activity },
     { href: '/graphingCalculator', label: 'Graphing Calculator', icon: Calculator },
+    { href: '/physicsengine', label: 'Physics Engine', icon: Atom },
     { href: '/about', label: 'About', icon: Info },
   ];
 
